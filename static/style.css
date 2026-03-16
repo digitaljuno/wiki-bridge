@@ -312,6 +312,8 @@ main { padding: 2rem 0; }
 /* Wider table for new columns */
 .container { max-width: 1400px; }
 
+#results-area { overflow-x: auto; }
+
 .stats { flex-wrap: wrap; }
 
 @media (max-width: 640px) {

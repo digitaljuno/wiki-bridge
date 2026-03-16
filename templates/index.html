@@ -202,6 +202,29 @@
       return n.toLocaleString();
     }
 
+    function formatBytes(n) {
+      if (!n || n === 0) return '—';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'KB';
+      return n + 'B';
+    }
+
+    function depthBar(r) {
+      if (!r.has_translation || !r.source_bytes) return '';
+      const pct = r.depth_pct || 0;
+      const color = pct < 20 ? '#dc2626' : pct < 40 ? '#ea580c' : pct < 60 ? '#d97706' : pct < 80 ? '#65a30d' : '#16a34a';
+      return `
+        <div style="margin-top:4px;">
+          <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:#64748b;">
+            <span>${formatBytes(r.target_bytes)}</span>
+            <span style="font-weight:700;color:${color};">${pct}%</span>
+            <span>${formatBytes(r.source_bytes)}</span>
+          </div>
+          <div style="background:#e2e8f0;border-radius:4px;height:6px;margin-top:2px;">
+            <div style="background:${color};border-radius:4px;height:6px;width:${Math.min(pct, 100)}%;"></div>
+          </div>
+        </div>`;
+    }
+
     // Topic Search
     async function searchTopic() {
       const topic = document.getElementById('topic-input').value.trim();
@@ -349,9 +372,10 @@
           <th onclick="sortTable(0)">Title</th>
           <th onclick="sortNumeric(1)">Views/mo</th>
           <th onclick="sortTable(2)">In ${targetLang}</th>
-          <th onclick="sortTable(3)">${sourceLang} Quality</th>
-          <th onclick="sortTable(4)">${targetLang} Quality</th>
-          <th onclick="sortNumeric(5)">Priority</th>
+          <th onclick="sortNumeric(3)">Depth</th>
+          <th onclick="sortTable(4)">${sourceLang} Quality</th>
+          <th onclick="sortTable(5)">${targetLang} Quality</th>
+          <th onclick="sortNumeric(6)">Priority</th>
           <th>Links</th>
         </tr>
       `;
@@ -376,6 +400,7 @@
             <td><strong>${escapeHtml(title)}</strong></td>
             <td data-sort="${r.monthly_views || 0}">${formatViews(r.monthly_views)}</td>
             <td><span class="badge ${statusClass}">${statusText}</span>${hasTranslation ? '<br><small style="color:#64748b;">' + escapeHtml(targetTitle) + '</small>' : ''}</td>
+            <td data-sort="${r.depth_pct || 0}" style="min-width:120px;">${hasTranslation ? depthBar(r) : '<span style="color:#94a3b8;">—</span>'}</td>
             <td>${qualityBadges(r)}</td>
             <td>${hasTranslation ? qualityBadges(r, 'target') : '<span style="color:#94a3b8;">N/A</span>'}</td>
             <td data-sort="${priority}"><span class="priority-score ${priorityClass}">${priority}</span></td>
@@ -388,7 +413,7 @@
       }).join('');
 
       if (results.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#64748b;">No results found. Try a different search term or direction.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:#64748b;">No results found. Try a different search term or direction.</td></tr>';
       }
     }
 
@@ -439,9 +464,10 @@
           <th onclick="sortTable(0)">Title</th>
           <th onclick="sortNumeric(1)">Views/mo</th>
           <th onclick="sortTable(2)">In ${target}</th>
-          <th onclick="sortTable(3)">${source} Quality</th>
-          <th onclick="sortTable(4)">${target} Quality</th>
-          <th onclick="sortNumeric(5)">Priority</th>
+          <th onclick="sortNumeric(3)">Depth</th>
+          <th onclick="sortTable(4)">${source} Quality</th>
+          <th onclick="sortTable(5)">${target} Quality</th>
+          <th onclick="sortNumeric(6)">Priority</th>
           <th>Links</th>
         </tr>
       `;
@@ -460,6 +486,7 @@
             <td><strong>${escapeHtml(r.title)}</strong></td>
             <td data-sort="${r.monthly_views || 0}">${formatViews(r.monthly_views)}</td>
             <td><span class="badge ${statusClass}">${statusText}</span>${r.has_translation ? '<br><small style="color:#64748b;">' + escapeHtml(r.target_title) + '</small>' : ''}</td>
+            <td data-sort="${r.depth_pct || 0}" style="min-width:120px;">${r.has_translation ? depthBar(r) : '<span style="color:#94a3b8;">—</span>'}</td>
             <td>${qualityBadges(r)}</td>
             <td>${r.has_translation ? qualityBadges(r, 'target') : '<span style="color:#94a3b8;">N/A</span>'}</td>
             <td data-sort="${priority}"><span class="priority-score ${priorityClass}">${priority}</span></td>

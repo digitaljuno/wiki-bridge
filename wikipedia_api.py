@@ -164,10 +164,13 @@ async def _check_batch(
                 "stub_type": quality["stub_type"],
                 "quality_issues": quality["quality_issues"],
                 "has_image": quality["has_image"],
+                "source_bytes": page_data.get("length", 0) if not missing else 0,
                 # Placeholders filled by enrich functions
                 "monthly_views": 0,
                 "target_quality": [],
                 "target_is_stub": False,
+                "target_bytes": 0,
+                "depth_pct": 0,
             }
         )
 
@@ -177,14 +180,14 @@ async def _check_batch(
 async def _check_quality_batch(
     api_url: str, titles: list[str]
 ) -> dict[str, dict]:
-    """Check quality (stubs, templates, images) for a batch of target-language articles.
+    """Check quality (stubs, templates, images, length) for a batch of target-language articles.
     Returns a dict mapping title -> quality info."""
     if not titles:
         return {}
 
     params = {
         "action": "query",
-        "prop": "categories|templates|pageimages",
+        "prop": "categories|templates|pageimages|info",
         "titles": "|".join(titles),
         "clshow": "hidden",
         "cllimit": "500",
@@ -209,6 +212,7 @@ async def _check_quality_batch(
         quality = _parse_quality(page_data)
         if not quality["has_image"]:
             quality["quality_issues"].append("No image")
+        quality["length"] = page_data.get("length", 0)
         result[title] = quality
     return result
 
@@ -236,12 +240,23 @@ async def enrich_with_target_quality(
         batch_result = await _check_quality_batch(api_url, batch)
         target_quality.update(batch_result)
 
-    # Merge target quality into results
+    # Merge target quality + length into results
     for r in results:
         if r["has_translation"] and r["target_title"] in target_quality:
             tq = target_quality[r["target_title"]]
             r["target_is_stub"] = tq["is_stub"]
             r["target_quality"] = tq["quality_issues"]
+            r["target_bytes"] = tq.get("length", 0)
+
+            # Compute depth ratio (target vs source)
+            src = r.get("source_bytes", 0)
+            tgt = r["target_bytes"]
+            if src > 0:
+                r["depth_pct"] = round(tgt / src * 100, 1)
+            elif tgt > 0:
+                r["depth_pct"] = 100.0
+            else:
+                r["depth_pct"] = 0
 
     return results
 

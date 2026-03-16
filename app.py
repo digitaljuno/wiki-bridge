@@ -15,15 +15,16 @@ app = FastAPI(title="WikiBridge", description="Wikipedia EN↔ES Knowledge Gap F
 
 
 def _compute_priority(r: dict) -> int:
-    """Compute a priority score for an article based on views and quality issues.
+    """Compute a priority score for an article based on views, quality, and depth.
     Higher score = should be edited first."""
+    import math
+
     score = 0
     views = r.get("monthly_views", 0)
 
     # Views give base priority (logarithmic scale so 100k views doesn't
     # completely dwarf everything else)
     if views > 0:
-        import math
         score += int(math.log10(max(views, 1)) * 10)  # e.g. 10k views = 40pts
 
     # Missing translation is highest priority
@@ -39,6 +40,16 @@ def _compute_priority(r: dict) -> int:
     if r.get("target_is_stub"):
         score += 25
     score += len(r.get("target_quality", [])) * 10
+
+    # Depth ratio penalty — translation exists but is thin
+    depth = r.get("depth_pct", 0)
+    if r.get("has_translation") and depth > 0:
+        if depth < 20:
+            score += 35  # Critically thin (< 20% of source)
+        elif depth < 40:
+            score += 25  # Very thin
+        elif depth < 60:
+            score += 15  # Thin
 
     return score
 app.mount("/static", StaticFiles(directory="static"), name="static")
