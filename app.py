@@ -12,6 +12,35 @@ import wikidata_api
 import wikipedia_api
 
 app = FastAPI(title="WikiBridge", description="Wikipedia EN↔ES Knowledge Gap Finder")
+
+
+def _compute_priority(r: dict) -> int:
+    """Compute a priority score for an article based on views and quality issues.
+    Higher score = should be edited first."""
+    score = 0
+    views = r.get("monthly_views", 0)
+
+    # Views give base priority (logarithmic scale so 100k views doesn't
+    # completely dwarf everything else)
+    if views > 0:
+        import math
+        score += int(math.log10(max(views, 1)) * 10)  # e.g. 10k views = 40pts
+
+    # Missing translation is highest priority
+    if not r.get("has_translation"):
+        score += 50
+
+    # Source quality issues
+    if r.get("is_stub"):
+        score += 30
+    score += len(r.get("quality_issues", [])) * 10
+
+    # Target quality issues (article exists but is bad)
+    if r.get("target_is_stub"):
+        score += 25
+    score += len(r.get("target_quality", [])) * 10
+
+    return score
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
@@ -52,6 +81,12 @@ async def topic_search(
         # Quality stats
         stubs = [r for r in wiki_results if r.get("is_stub")]
         with_issues = [r for r in wiki_results if r.get("quality_issues")]
+        target_issues = [r for r in wiki_results if r.get("target_quality") or r.get("target_is_stub")]
+
+        # Compute priority score and sort by it
+        for r in wiki_results:
+            r["priority"] = _compute_priority(r)
+        wiki_results.sort(key=lambda r: r["priority"], reverse=True)
 
         return {
             "query": topic,
@@ -64,6 +99,7 @@ async def topic_search(
             ),
             "total_stubs": len(stubs),
             "total_quality_issues": len(with_issues),
+            "total_target_issues": len(target_issues),
             "results": wiki_results,
         }
     except Exception as e:
@@ -109,6 +145,11 @@ async def category_search(
         has_translation = [r for r in results if r["has_translation"]]
         stubs = [r for r in results if r.get("is_stub")]
         with_issues = [r for r in results if r.get("quality_issues")]
+        target_issues = [r for r in results if r.get("target_quality") or r.get("target_is_stub")]
+
+        for r in results:
+            r["priority"] = _compute_priority(r)
+        results.sort(key=lambda r: r["priority"], reverse=True)
 
         return {
             "query": category,
@@ -121,6 +162,7 @@ async def category_search(
             ),
             "total_stubs": len(stubs),
             "total_quality_issues": len(with_issues),
+            "total_target_issues": len(target_issues),
             "results": results,
         }
     except Exception as e:
@@ -145,6 +187,12 @@ async def check_articles(
         missing = [r for r in results if r["exists_in_source"] and not r["has_translation"]]
         stubs = [r for r in results if r.get("is_stub")]
         with_issues = [r for r in results if r.get("quality_issues")]
+        target_issues = [r for r in results if r.get("target_quality") or r.get("target_is_stub")]
+
+        for r in results:
+            r["priority"] = _compute_priority(r)
+        results.sort(key=lambda r: r["priority"], reverse=True)
+
         return {
             "total_checked": len(results),
             "total_missing": len(missing),
@@ -153,6 +201,7 @@ async def check_articles(
             ),
             "total_stubs": len(stubs),
             "total_quality_issues": len(with_issues),
+            "total_target_issues": len(target_issues),
             "results": results,
         }
     except Exception as e:
@@ -173,10 +222,12 @@ async def export_csv(
 
     output = io.StringIO()
     if results:
-        # Flatten list fields (quality_issues) for CSV
+        # Flatten list fields for CSV
         for r in results:
             if isinstance(r.get("quality_issues"), list):
                 r["quality_issues"] = "; ".join(r["quality_issues"])
+            if isinstance(r.get("target_quality"), list):
+                r["target_quality"] = "; ".join(r["target_quality"])
         fieldnames = list(results[0].keys())
         writer = csv.DictWriter(output, fieldnames=fieldnames)
         writer.writeheader()

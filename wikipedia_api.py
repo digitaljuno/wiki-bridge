@@ -1,6 +1,9 @@
 """MediaWiki API client for checking interlanguage links and article quality."""
 
+import asyncio
 import re
+from datetime import datetime, timedelta
+from urllib.parse import quote
 
 import httpx
 
@@ -15,17 +18,24 @@ HEADERS = {
 
 
 async def check_langlinks(
-    titles: list[str], source_lang: str = "en", target_lang: str = "es"
+    titles: list[str],
+    source_lang: str = "en",
+    target_lang: str = "es",
+    include_views: bool = True,
+    include_target_quality: bool = True,
 ) -> list[dict]:
     """Check which articles from source_lang are missing in target_lang.
+    Optionally enriches with pageviews and target-language quality data.
 
     Args:
         titles: List of article titles to check
         source_lang: Language code of the source Wikipedia (e.g., "en")
         target_lang: Language code to check for existence (e.g., "es")
+        include_views: Fetch monthly pageviews per article
+        include_target_quality: Check quality on translated articles too
 
     Returns:
-        List of dicts with title, has_translation, target_title info
+        List of dicts with title, has_translation, quality, views info
     """
     if source_lang not in API_URLS:
         raise ValueError(f"Unsupported language: {source_lang}")
@@ -39,26 +49,80 @@ async def check_langlinks(
         batch_results = await _check_batch(api_url, batch, target_lang)
         results.extend(batch_results)
 
+    # Enrich with target-language quality (stubs, sourcing, images on ES/EN side)
+    if include_target_quality:
+        results = await enrich_with_target_quality(results, target_lang)
+
+    # Enrich with pageviews
+    if include_views:
+        results = await enrich_with_pageviews(results, source_lang)
+
     return results
+
+
+def _parse_quality(page_data: dict) -> dict:
+    """Extract quality signals (stub, sourcing, images) from a page query result."""
+    # --- Categories: detect stubs via hidden categories ---
+    categories = page_data.get("categories", [])
+    is_stub = False
+    stub_type = ""
+    for cat in categories:
+        cat_title = cat.get("title", "").lower()
+        if "stub" in cat_title or "esbozo" in cat_title:
+            is_stub = True
+            stub_type = (
+                cat.get("title", "")
+                .replace("Category:", "")
+                .replace("Categoría:", "")
+            )
+            break
+
+    # --- Templates: detect sourcing issues ---
+    templates = page_data.get("templates", [])
+    quality_issues = []
+    for tpl in templates:
+        tpl_title = tpl.get("title", "").lower()
+        if "citation needed" in tpl_title or "cita requerida" in tpl_title:
+            quality_issues.append("Citation needed")
+        elif "refimprove" in tpl_title or "more citations" in tpl_title:
+            quality_issues.append("Needs more references")
+        elif "unreferenced" in tpl_title or "sin referencias" in tpl_title:
+            quality_issues.append("No references")
+        elif "original research" in tpl_title:
+            quality_issues.append("Original research")
+        elif "pov" in tpl_title or "neutrality" in tpl_title:
+            quality_issues.append("Neutrality disputed")
+        elif "cleanup" in tpl_title or "wikificar" in tpl_title:
+            quality_issues.append("Needs cleanup")
+    quality_issues = list(dict.fromkeys(quality_issues))
+
+    # --- Images: check if page has a main image ---
+    has_image = page_data.get("thumbnail") is not None or page_data.get("pageimage") is not None
+
+    return {
+        "is_stub": is_stub,
+        "stub_type": stub_type,
+        "quality_issues": quality_issues,
+        "has_image": has_image,
+    }
 
 
 async def _check_batch(
     api_url: str, titles: list[str], target_lang: str
 ) -> list[dict]:
-    """Check a batch of up to 50 titles for langlinks, stub status, and sourcing quality."""
+    """Check a batch of up to 50 titles for langlinks, stub status, sourcing, and images."""
     params = {
         "action": "query",
-        "prop": "langlinks|info|categories|templates",
+        "prop": "langlinks|info|categories|templates|pageimages",
         "inprop": "url",
         "titles": "|".join(titles),
         "lllang": target_lang,
         "lllimit": "500",
-        # Hidden categories include stub markers
         "clshow": "hidden",
         "cllimit": "500",
-        # Templates — limit to 500 to catch maintenance banners
         "tllimit": "500",
         "tlnamespace": "10",
+        "pithumbsize": "100",
         "format": "json",
         "origin": "*",
     }
@@ -75,7 +139,6 @@ async def _check_batch(
         title = page_data.get("title", "")
         langlinks = page_data.get("langlinks", [])
 
-        # --- Langlinks: find target language translation ---
         target_title = None
         for ll in langlinks:
             if ll.get("lang") == target_lang:
@@ -83,44 +146,13 @@ async def _check_batch(
                 break
 
         missing = page_id == "-1" or page_data.get("missing") is not None
-
-        # --- Categories: detect stubs via hidden categories ---
-        categories = page_data.get("categories", [])
-        is_stub = False
-        stub_type = ""
-        for cat in categories:
-            cat_title = cat.get("title", "").lower()
-            if "stub" in cat_title or "esbozo" in cat_title:
-                is_stub = True
-                # Extract a readable stub type from "Category:Mexican writer stubs"
-                stub_type = (
-                    cat.get("title", "")
-                    .replace("Category:", "")
-                    .replace("Categoría:", "")
-                )
-                break
-
-        # --- Templates: detect sourcing issues ---
-        templates = page_data.get("templates", [])
-        quality_issues = []
-        for tpl in templates:
-            tpl_title = tpl.get("title", "").lower()
-            if "citation needed" in tpl_title or "cita requerida" in tpl_title:
-                quality_issues.append("Citation needed")
-            elif "refimprove" in tpl_title or "more citations" in tpl_title:
-                quality_issues.append("Needs more references")
-            elif "unreferenced" in tpl_title or "sin referencias" in tpl_title:
-                quality_issues.append("No references")
-            elif "original research" in tpl_title:
-                quality_issues.append("Original research")
-            elif "pov" in tpl_title or "neutrality" in tpl_title:
-                quality_issues.append("Neutrality disputed")
-            elif "cleanup" in tpl_title or "wikificar" in tpl_title:
-                quality_issues.append("Needs cleanup")
-        # Deduplicate
-        quality_issues = list(dict.fromkeys(quality_issues))
-
+        quality = _parse_quality(page_data)
         source_url = page_data.get("fullurl", "")
+
+        # Add "No image" to quality issues if missing
+        if not missing and not quality["has_image"]:
+            quality["quality_issues"].append("No image")
+
         results.append(
             {
                 "title": title,
@@ -128,11 +160,137 @@ async def _check_batch(
                 "has_translation": target_title is not None,
                 "target_title": target_title or "",
                 "source_url": source_url,
-                "is_stub": is_stub,
-                "stub_type": stub_type,
-                "quality_issues": quality_issues,
+                "is_stub": quality["is_stub"],
+                "stub_type": quality["stub_type"],
+                "quality_issues": quality["quality_issues"],
+                "has_image": quality["has_image"],
+                # Placeholders filled by enrich functions
+                "monthly_views": 0,
+                "target_quality": [],
+                "target_is_stub": False,
             }
         )
+
+    return results
+
+
+async def _check_quality_batch(
+    api_url: str, titles: list[str]
+) -> dict[str, dict]:
+    """Check quality (stubs, templates, images) for a batch of target-language articles.
+    Returns a dict mapping title -> quality info."""
+    if not titles:
+        return {}
+
+    params = {
+        "action": "query",
+        "prop": "categories|templates|pageimages",
+        "titles": "|".join(titles),
+        "clshow": "hidden",
+        "cllimit": "500",
+        "tllimit": "500",
+        "tlnamespace": "10",
+        "pithumbsize": "100",
+        "format": "json",
+        "origin": "*",
+    }
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.get(api_url, params=params, headers=HEADERS)
+        resp.raise_for_status()
+        data = resp.json()
+
+    result = {}
+    pages = data.get("query", {}).get("pages", {})
+    for page_id, page_data in pages.items():
+        if page_id == "-1" or page_data.get("missing") is not None:
+            continue
+        title = page_data.get("title", "")
+        quality = _parse_quality(page_data)
+        if not quality["has_image"]:
+            quality["quality_issues"].append("No image")
+        result[title] = quality
+    return result
+
+
+async def enrich_with_target_quality(
+    results: list[dict], target_lang: str
+) -> list[dict]:
+    """For articles that have translations, check the target article's quality too."""
+    if target_lang not in API_URLS:
+        return results
+
+    # Collect target titles that need checking
+    target_titles = [
+        r["target_title"] for r in results
+        if r["has_translation"] and r["target_title"]
+    ]
+    if not target_titles:
+        return results
+
+    # Batch check target quality (50 at a time)
+    target_quality = {}
+    api_url = API_URLS[target_lang]
+    for i in range(0, len(target_titles), 50):
+        batch = target_titles[i : i + 50]
+        batch_result = await _check_quality_batch(api_url, batch)
+        target_quality.update(batch_result)
+
+    # Merge target quality into results
+    for r in results:
+        if r["has_translation"] and r["target_title"] in target_quality:
+            tq = target_quality[r["target_title"]]
+            r["target_is_stub"] = tq["is_stub"]
+            r["target_quality"] = tq["quality_issues"]
+
+    return results
+
+
+async def enrich_with_pageviews(
+    results: list[dict], lang: str
+) -> list[dict]:
+    """Fetch monthly pageviews for articles and add to results.
+    Uses the Wikimedia REST API (batches of 50 concurrent requests)."""
+    # Date range: last 30 days
+    end = datetime.utcnow()
+    start = end - timedelta(days=30)
+    start_str = start.strftime("%Y%m%d")
+    end_str = end.strftime("%Y%m%d")
+
+    titles_to_check = [
+        r["title"] for r in results if r["exists_in_source"]
+    ]
+    if not titles_to_check:
+        return results
+
+    async def fetch_views(client: httpx.AsyncClient, title: str) -> tuple[str, int]:
+        encoded = quote(title.replace(" ", "_"), safe="")
+        url = (
+            f"https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article"
+            f"/{lang}.wikipedia/all-access/user/{encoded}/daily/{start_str}/{end_str}"
+        )
+        try:
+            resp = await client.get(url, headers=HEADERS)
+            if resp.status_code == 200:
+                items = resp.json().get("items", [])
+                views = sum(item.get("views", 0) for item in items)
+                return (title, views)
+        except Exception:
+            pass
+        return (title, 0)
+
+    # Fetch in batches of 50 concurrent requests to be polite
+    views_map = {}
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        for i in range(0, len(titles_to_check), 50):
+            batch = titles_to_check[i : i + 50]
+            tasks = [fetch_views(client, t) for t in batch]
+            batch_results = await asyncio.gather(*tasks)
+            for title, views in batch_results:
+                views_map[title] = views
+
+    for r in results:
+        r["monthly_views"] = views_map.get(r["title"], 0)
 
     return results
 

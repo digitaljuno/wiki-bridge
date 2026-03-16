@@ -177,18 +177,29 @@
     }
 
     // Build quality badges HTML from a result object
-    function qualityBadges(r) {
+    function qualityBadges(r, prefix) {
+      const isStub = prefix ? r[prefix + '_is_stub'] : r.is_stub;
+      const issues = prefix ? (r[prefix + '_quality'] || []) : (r.quality_issues || []);
+      const stubType = prefix ? '' : (r.stub_type || '');
+
       const badges = [];
-      if (r.is_stub) {
-        const tip = r.stub_type ? escapeHtml(r.stub_type) : 'Stub article';
+      if (isStub) {
+        const tip = stubType ? escapeHtml(stubType) : 'Stub article';
         badges.push(`<span class="badge stub" title="${tip}">Stub</span>`);
       }
-      if (r.quality_issues && r.quality_issues.length > 0) {
-        r.quality_issues.forEach(issue => {
+      if (issues.length > 0) {
+        issues.forEach(issue => {
           badges.push(`<span class="badge warning" title="${escapeHtml(issue)}">${escapeHtml(issue)}</span>`);
         });
       }
       return badges.length > 0 ? badges.join(' ') : '<span style="color:#94a3b8;">OK</span>';
+    }
+
+    function formatViews(n) {
+      if (!n || n === 0) return '—';
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return n.toLocaleString();
     }
 
     // Topic Search
@@ -294,12 +305,14 @@
       hideLoading();
       clearError();
 
+      const sourceLang = direction === 'es_missing_en' ? 'EN' : 'ES';
       const targetLang = direction === 'es_missing_en' ? 'ES' : 'EN';
       const totalSearched = data.total_searched || data.total_in_category || 0;
       const totalGaps = data.total_gaps || 0;
       const coveragePct = data.coverage_pct || 0;
       const totalStubs = data.total_stubs || 0;
       const totalQuality = data.total_quality_issues || 0;
+      const totalTargetIssues = data.total_target_issues || 0;
 
       document.getElementById('stats').innerHTML = `
         <div class="stat">
@@ -316,11 +329,15 @@
         </div>
         <div class="stat">
           <div class="stat-value stub">${totalStubs}</div>
-          <div class="stat-label">Stubs</div>
+          <div class="stat-label">${sourceLang} Stubs</div>
         </div>
         <div class="stat">
           <div class="stat-value warning-val">${totalQuality}</div>
-          <div class="stat-label">Sourcing Issues</div>
+          <div class="stat-label">${sourceLang} Quality Issues</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value warning-val">${totalTargetIssues}</div>
+          <div class="stat-label">${targetLang} Quality Issues</div>
         </div>
       `;
 
@@ -330,10 +347,12 @@
       document.getElementById('table-head').innerHTML = `
         <tr>
           <th onclick="sortTable(0)">Title</th>
-          <th onclick="sortTable(1)">In ${targetLang}</th>
-          <th onclick="sortTable(2)">${targetLang} Title</th>
-          <th onclick="sortTable(3)">Quality</th>
-          <th>Link</th>
+          <th onclick="sortNumeric(1)">Views/mo</th>
+          <th onclick="sortTable(2)">In ${targetLang}</th>
+          <th onclick="sortTable(3)">${sourceLang} Quality</th>
+          <th onclick="sortTable(4)">${targetLang} Quality</th>
+          <th onclick="sortNumeric(5)">Priority</th>
+          <th>Links</th>
         </tr>
       `;
 
@@ -346,19 +365,30 @@
         const title = r.title || r.label || r.article || '';
         const targetTitle = r.target_title || '';
         const url = r.source_url || r.wikipedia_url || '';
+        const targetUrl = hasTranslation && targetTitle
+          ? `https://${direction === 'es_missing_en' ? 'es' : 'en'}.wikipedia.org/wiki/${encodeURIComponent(targetTitle.replace(/ /g, '_'))}`
+          : '';
+        const priority = r.priority || 0;
+        const priorityClass = priority >= 80 ? 'priority-high' : priority >= 40 ? 'priority-med' : 'priority-low';
+
         return `
           <tr>
             <td><strong>${escapeHtml(title)}</strong></td>
-            <td><span class="badge ${statusClass}">${statusText}</span></td>
-            <td>${escapeHtml(targetTitle || '—')}</td>
+            <td data-sort="${r.monthly_views || 0}">${formatViews(r.monthly_views)}</td>
+            <td><span class="badge ${statusClass}">${statusText}</span>${hasTranslation ? '<br><small style="color:#64748b;">' + escapeHtml(targetTitle) + '</small>' : ''}</td>
             <td>${qualityBadges(r)}</td>
-            <td>${url ? `<a href="${escapeHtml(url)}" target="_blank">View</a>` : '—'}</td>
+            <td>${hasTranslation ? qualityBadges(r, 'target') : '<span style="color:#94a3b8;">N/A</span>'}</td>
+            <td data-sort="${priority}"><span class="priority-score ${priorityClass}">${priority}</span></td>
+            <td>
+              ${url ? `<a href="${escapeHtml(url)}" target="_blank">${sourceLang}</a>` : ''}
+              ${targetUrl ? ` · <a href="${escapeHtml(targetUrl)}" target="_blank">${targetLang}</a>` : ''}
+            </td>
           </tr>
         `;
       }).join('');
 
       if (results.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:#64748b;">No results found. Try a different search term or direction.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#64748b;">No results found. Try a different search term or direction.</td></tr>';
       }
     }
 
@@ -370,6 +400,7 @@
       const target = document.getElementById('articles-target').value.toUpperCase();
       const totalStubs = data.total_stubs || 0;
       const totalQuality = data.total_quality_issues || 0;
+      const totalTargetIssues = data.total_target_issues || 0;
 
       document.getElementById('stats').innerHTML = `
         <div class="stat">
@@ -386,24 +417,32 @@
         </div>
         <div class="stat">
           <div class="stat-value stub">${totalStubs}</div>
-          <div class="stat-label">Stubs</div>
+          <div class="stat-label">${source} Stubs</div>
         </div>
         <div class="stat">
           <div class="stat-value warning-val">${totalQuality}</div>
-          <div class="stat-label">Sourcing Issues</div>
+          <div class="stat-label">${source} Quality Issues</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value warning-val">${totalTargetIssues}</div>
+          <div class="stat-label">${target} Quality Issues</div>
         </div>
       `;
 
       document.getElementById('export-btn').style.display =
         data.results.length > 0 ? 'inline-block' : 'none';
 
+      const targetLangCode = document.getElementById('articles-target').value;
+
       document.getElementById('table-head').innerHTML = `
         <tr>
           <th onclick="sortTable(0)">Title</th>
-          <th onclick="sortTable(1)">In ${target}</th>
-          <th onclick="sortTable(2)">${target} Title</th>
-          <th onclick="sortTable(3)">Quality</th>
-          <th>Link</th>
+          <th onclick="sortNumeric(1)">Views/mo</th>
+          <th onclick="sortTable(2)">In ${target}</th>
+          <th onclick="sortTable(3)">${source} Quality</th>
+          <th onclick="sortTable(4)">${target} Quality</th>
+          <th onclick="sortNumeric(5)">Priority</th>
+          <th>Links</th>
         </tr>
       `;
 
@@ -411,13 +450,23 @@
       tbody.innerHTML = data.results.map(r => {
         const statusClass = r.has_translation ? 'exists' : 'missing';
         const statusText = r.has_translation ? 'Yes' : 'Missing';
+        const targetUrl = r.has_translation && r.target_title
+          ? `https://${targetLangCode}.wikipedia.org/wiki/${encodeURIComponent(r.target_title.replace(/ /g, '_'))}`
+          : '';
+        const priority = r.priority || 0;
+        const priorityClass = priority >= 80 ? 'priority-high' : priority >= 40 ? 'priority-med' : 'priority-low';
         return `
           <tr>
             <td><strong>${escapeHtml(r.title)}</strong></td>
-            <td><span class="badge ${statusClass}">${statusText}</span></td>
-            <td>${escapeHtml(r.target_title || '—')}</td>
+            <td data-sort="${r.monthly_views || 0}">${formatViews(r.monthly_views)}</td>
+            <td><span class="badge ${statusClass}">${statusText}</span>${r.has_translation ? '<br><small style="color:#64748b;">' + escapeHtml(r.target_title) + '</small>' : ''}</td>
             <td>${qualityBadges(r)}</td>
-            <td><a href="${escapeHtml(r.source_url)}" target="_blank">View</a></td>
+            <td>${r.has_translation ? qualityBadges(r, 'target') : '<span style="color:#94a3b8;">N/A</span>'}</td>
+            <td data-sort="${priority}"><span class="priority-score ${priorityClass}">${priority}</span></td>
+            <td>
+              <a href="${escapeHtml(r.source_url)}" target="_blank">${source}</a>
+              ${targetUrl ? ` · <a href="${escapeHtml(targetUrl)}" target="_blank">${target}</a>` : ''}
+            </td>
           </tr>
         `;
       }).join('');
@@ -437,6 +486,24 @@
         const aText = a.children[colIndex]?.textContent || '';
         const bText = b.children[colIndex]?.textContent || '';
         return sortAsc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+      });
+      rows.forEach(row => tbody.appendChild(row));
+    }
+
+    function sortNumeric(colIndex) {
+      if (sortCol === colIndex) {
+        sortAsc = !sortAsc;
+      } else {
+        sortCol = colIndex;
+        sortAsc = false; // Default descending for numbers (highest first)
+      }
+
+      const tbody = document.getElementById('table-body');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      rows.sort((a, b) => {
+        const aVal = parseFloat(a.children[colIndex]?.getAttribute('data-sort') || '0');
+        const bVal = parseFloat(b.children[colIndex]?.getAttribute('data-sort') || '0');
+        return sortAsc ? aVal - bVal : bVal - aVal;
       });
       rows.forEach(row => tbody.appendChild(row));
     }

@@ -288,6 +288,32 @@ main { padding: 2rem 0; }
   margin-top: 0.5rem;
 }
 
+/* Priority scores */
+.priority-score {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.priority-high {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.priority-med {
+  background: #fffbeb;
+  color: #d97706;
+}
+.priority-low {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+/* Wider table for new columns */
+.container { max-width: 1400px; }
+
+.stats { flex-wrap: wrap; }
+
 @media (max-width: 640px) {
   .form-row { flex-direction: column; }
   .stats { flex-direction: column; gap: 0.75rem; }
