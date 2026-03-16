@@ -7,15 +7,22 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+  <!-- Header Window -->
   <header>
-    <div class="container">
-      <h1><span>Wiki</span>Bridge</h1>
-      <p>Find Wikipedia articles missing between English and Spanish</p>
+    <div class="win-window">
+      <div class="win-titlebar">
+        <span class="win-title">WikiBridge</span>
+        <div class="win-buttons"><span class="win-btn">_</span><span class="win-btn">[]</span><span class="win-btn win-close">X</span></div>
+      </div>
+      <div class="win-content" style="padding: 1rem 1.25rem;">
+        <h1><span>Wiki</span>Bridge</h1>
+        <p>Find Wikipedia articles missing between English and Spanish</p>
+      </div>
     </div>
   </header>
 
   <main class="container">
-    <!-- Tabs -->
+    <!-- Tabs as retro folder tabs -->
     <div class="tabs">
       <button class="tab active" data-tab="topic">Topic Search</button>
       <button class="tab" data-tab="category">Category Search</button>
@@ -24,88 +31,112 @@
 
     <!-- Topic Search Panel -->
     <div class="search-panel active" id="panel-topic">
-      <div class="form-row">
-        <div class="form-group" style="flex: 2;">
-          <label for="topic-input">Topic</label>
-          <input type="text" id="topic-input" placeholder='e.g., "Mexican literature", "Colombian musicians"'>
+      <div class="win-window">
+        <div class="win-titlebar">
+          <span class="win-title">Search</span>
+          <div class="win-buttons"><span class="win-btn">_</span><span class="win-btn">[]</span><span class="win-btn win-close">X</span></div>
         </div>
-        <div class="form-group" style="flex: 0 0 auto; min-width: 180px;">
-          <label for="topic-direction">Direction</label>
-          <select id="topic-direction">
-            <option value="es_missing_en">EN exists, ES missing</option>
-            <option value="en_missing_es">ES exists, EN missing</option>
-          </select>
+        <div class="win-content">
+          <div class="form-row">
+            <div class="form-group" style="flex: 2;">
+              <label for="topic-input">Topic</label>
+              <input type="text" id="topic-input" placeholder='e.g., "Mexican literature", "Colombian musicians"'>
+            </div>
+            <div class="form-group" style="flex: 0 0 auto; min-width: 180px;">
+              <label for="topic-direction">Direction</label>
+              <select id="topic-direction">
+                <option value="es_missing_en">EN exists, ES missing</option>
+                <option value="en_missing_es">ES exists, EN missing</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 0 0 auto; min-width: 100px;">
+              <label for="topic-limit">Limit</label>
+              <select id="topic-limit">
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+                <option value="200">200</option>
+                <option value="500">500</option>
+              </select>
+            </div>
+            <button class="btn" onclick="searchTopic()">Search</button>
+          </div>
+          <p class="direction-hint">
+            Searches Wikipedia for articles on this topic, then checks which ones are <strong>missing</strong> in the other language.
+          </p>
         </div>
-        <div class="form-group" style="flex: 0 0 auto; min-width: 100px;">
-          <label for="topic-limit">Limit</label>
-          <select id="topic-limit">
-            <option value="50">50</option>
-            <option value="100" selected>100</option>
-            <option value="200">200</option>
-            <option value="500">500</option>
-          </select>
-        </div>
-        <button class="btn" onclick="searchTopic()">Search</button>
       </div>
-      <p class="direction-hint">
-        Searches Wikipedia for articles on this topic, then checks which ones are <strong>missing</strong> in the other language.
-      </p>
     </div>
 
     <!-- Category Search Panel -->
     <div class="search-panel" id="panel-category">
-      <div class="form-row">
-        <div class="form-group" style="flex: 2;">
-          <label for="category-input">Wikipedia Category</label>
-          <input type="text" id="category-input" placeholder='e.g., "Mexican writers", "Latin American novels"'>
+      <div class="win-window">
+        <div class="win-titlebar">
+          <span class="win-title">Category Search</span>
+          <div class="win-buttons"><span class="win-btn">_</span><span class="win-btn">[]</span><span class="win-btn win-close">X</span></div>
         </div>
-        <div class="form-group" style="flex: 0 0 auto; min-width: 180px;">
-          <label for="cat-direction">Direction</label>
-          <select id="cat-direction">
-            <option value="es_missing_en">EN exists, ES missing</option>
-            <option value="en_missing_es">ES exists, EN missing</option>
-          </select>
-        </div>
-        <div class="form-group" style="flex: 0 0 auto; min-width: 100px;">
-          <label for="cat-limit">Limit</label>
-          <select id="cat-limit">
-            <option value="50">50</option>
-            <option value="100">100</option>
-            <option value="200" selected>200</option>
-            <option value="500">500</option>
-          </select>
-        </div>
-        <div class="form-group" style="flex: 0 0 auto; min-width: auto; justify-content: end;">
-          <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; text-transform: none; font-weight: 500;">
-            <input type="checkbox" id="cat-deep"> Include subcategories
-          </label>
-          <button class="btn" onclick="searchCategory()">Search</button>
+        <div class="win-content">
+          <div class="form-row">
+            <div class="form-group" style="flex: 2;">
+              <label for="category-input">Wikipedia Category</label>
+              <input type="text" id="category-input" placeholder='e.g., "Mexican writers", "Latin American novels"'>
+            </div>
+            <div class="form-group" style="flex: 0 0 auto; min-width: 180px;">
+              <label for="cat-direction">Direction</label>
+              <select id="cat-direction">
+                <option value="es_missing_en">EN exists, ES missing</option>
+                <option value="en_missing_es">ES exists, EN missing</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 0 0 auto; min-width: 100px;">
+              <label for="cat-limit">Limit</label>
+              <select id="cat-limit">
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200" selected>200</option>
+                <option value="500">500</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 0 0 auto; min-width: auto; justify-content: end;">
+              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; text-transform: none; font-weight: 500;">
+                <input type="checkbox" id="cat-deep"> Include subcategories
+              </label>
+              <button class="btn" onclick="searchCategory()">Search</button>
+            </div>
+          </div>
+          <p class="direction-hint">
+            Fetches all articles in a Wikipedia category and checks coverage. Use exact Wikipedia category names.
+          </p>
         </div>
       </div>
-      <p class="direction-hint">
-        Fetches all articles in a Wikipedia category and checks coverage. Use exact Wikipedia category names. Enable "Include subcategories" for deeper results.
-      </p>
     </div>
 
     <!-- Article List Panel -->
     <div class="search-panel" id="panel-articles">
-      <div class="form-row" style="align-items: stretch;">
-        <div class="form-group" style="flex: 2;">
-          <label for="articles-input">Article Titles (one per line)</label>
-          <textarea id="articles-input" placeholder="Paste article titles here, one per line&#10;e.g.:&#10;Gabriel García Márquez&#10;Octavio Paz&#10;Sor Juana Inés de la Cruz"></textarea>
+      <div class="win-window">
+        <div class="win-titlebar">
+          <span class="win-title">Article List Check</span>
+          <div class="win-buttons"><span class="win-btn">_</span><span class="win-btn">[]</span><span class="win-btn win-close">X</span></div>
         </div>
-        <div class="form-group" style="flex: 0 0 auto; min-width: 180px;">
-          <label for="articles-source">Source Language</label>
-          <select id="articles-source">
-            <option value="en">English (EN)</option>
-            <option value="es">Spanish (ES)</option>
-          </select>
-          <label for="articles-target" style="margin-top: 0.75rem;">Check Against</label>
-          <select id="articles-target">
-            <option value="es">Spanish (ES)</option>
-            <option value="en">English (EN)</option>
-          </select>
-          <button class="btn" onclick="checkArticles()" style="margin-top: auto;">Check</button>
+        <div class="win-content">
+          <div class="form-row" style="align-items: stretch;">
+            <div class="form-group" style="flex: 2;">
+              <label for="articles-input">Article Titles (one per line)</label>
+              <textarea id="articles-input" placeholder="Paste article titles here, one per line&#10;e.g.:&#10;Gabriel García Márquez&#10;Octavio Paz&#10;Sor Juana Inés de la Cruz"></textarea>
+            </div>
+            <div class="form-group" style="flex: 0 0 auto; min-width: 180px;">
+              <label for="articles-source">Source Language</label>
+              <select id="articles-source">
+                <option value="en">English (EN)</option>
+                <option value="es">Spanish (ES)</option>
+              </select>
+              <label for="articles-target" style="margin-top: 0.75rem;">Check Against</label>
+              <select id="articles-target">
+                <option value="es">Spanish (ES)</option>
+                <option value="en">English (EN)</option>
+              </select>
+              <button class="btn" onclick="checkArticles()" style="margin-top: auto;">Check</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -113,24 +144,43 @@
     <!-- Loading -->
     <div id="loading" style="display: none;">
       <div class="loading">
-        <div class="spinner"></div>
-        <p style="margin-top: 1rem;">Querying Wikipedia...</p>
+        <div class="win-window" style="display:inline-block;">
+          <div class="win-titlebar">
+            <span class="win-title">Loading...</span>
+            <div class="win-buttons"><span class="win-btn win-close">X</span></div>
+          </div>
+          <div class="win-content" style="padding:2rem 3rem;text-align:center;">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem;">Querying Wikipedia...</p>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Results -->
     <div id="results-area">
-      <div class="results-header">
-        <div class="stats" id="stats"></div>
-        <button class="btn btn-secondary" id="export-btn" onclick="exportCSV()" style="display: none;">
-          Export CSV
-        </button>
+      <div class="win-window">
+        <div class="win-titlebar">
+          <span class="win-title">Results</span>
+          <div class="win-buttons"><span class="win-btn">_</span><span class="win-btn">[]</span><span class="win-btn win-close">X</span></div>
+        </div>
+        <div class="win-content">
+          <div class="results-header">
+            <div class="stats" id="stats"></div>
+            <button class="btn btn-secondary" id="export-btn" onclick="exportCSV()" style="display: none;">
+              Export CSV
+            </button>
+          </div>
+          <div id="error-container"></div>
+          <div style="overflow-x: auto;">
+            <table class="results-table" id="results-table">
+              <thead id="table-head"></thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div id="error-container"></div>
-      <table class="results-table" id="results-table">
-        <thead id="table-head"></thead>
-        <tbody id="table-body"></tbody>
-      </table>
     </div>
   </main>
 
