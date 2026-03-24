@@ -7,6 +7,26 @@ from urllib.parse import quote
 
 import httpx
 
+STOPWORDS = {
+    "in", "the", "of", "and", "a", "an", "to", "for", "on", "at", "by", "with",
+    "is", "was", "are", "from", "or", "as", "its", "it", "be", "that", "this",
+    # Spanish stopwords
+    "de", "en", "la", "el", "los", "las", "del", "y", "por", "con", "una", "un",
+    "para", "al", "es", "lo", "se", "su", "como", "que",
+}
+
+
+def _relevance_score(query: str, title: str) -> float:
+    """Score how relevant a title is to the search query (0.0 to 1.0).
+    Based on keyword overlap, ignoring stopwords."""
+    query_words = {w for w in query.lower().split() if w not in STOPWORDS}
+    if not query_words:
+        return 1.0  # No meaningful keywords = accept everything
+    title_lower = title.lower()
+    matches = sum(1 for w in query_words if w in title_lower)
+    return matches / len(query_words)
+
+
 API_URLS = {
     "en": "https://en.wikipedia.org/w/api.php",
     "es": "https://es.wikipedia.org/w/api.php",
@@ -382,20 +402,23 @@ async def search_and_check_gaps(
     if source_lang not in API_URLS:
         raise ValueError(f"Unsupported language: {source_lang}")
 
-    # Paginate through Wikipedia search results
-    titles = []
+    # Paginate through Wikipedia search results — fetch extra to allow
+    # for filtering low-relevance results later
+    raw_titles = []
     offset = 0
     page_size = 50  # Wikipedia API max per request
+    fetch_limit = limit * 2  # Over-fetch so filtering doesn't leave us short
 
     async with httpx.AsyncClient(timeout=30.0) as client:
-        while len(titles) < limit:
+        while len(raw_titles) < fetch_limit:
             params = {
                 "action": "query",
                 "list": "search",
                 "srsearch": query,
                 "srnamespace": "0",
-                "srlimit": str(min(page_size, limit - len(titles))),
+                "srlimit": str(min(page_size, fetch_limit - len(raw_titles))),
                 "sroffset": str(offset),
+                "srsort": "relevance",
                 "format": "json",
                 "origin": "*",
             }
@@ -408,7 +431,7 @@ async def search_and_check_gaps(
             if not search_results:
                 break
 
-            titles.extend(r["title"] for r in search_results)
+            raw_titles.extend(r["title"] for r in search_results)
 
             # Check if there are more results
             continue_data = data.get("continue", {})
@@ -416,11 +439,27 @@ async def search_and_check_gaps(
                 break
             offset = continue_data["sroffset"]
 
-    if not titles:
+    if not raw_titles:
         return []
 
+    # Filter by relevance — keep titles that share enough keywords with the query
+    scored = [(t, _relevance_score(query, t)) for t in raw_titles]
+    # Use a 0.4 threshold (at least 40% of query keywords must appear in title)
+    threshold = 0.4
+    filtered = [t for t, s in scored if s >= threshold]
+
+    # If filtering removed too many, fall back to top results by score
+    if len(filtered) < 10:
+        scored.sort(key=lambda x: x[1], reverse=True)
+        filtered = [t for t, _ in scored[:limit]]
+
+    # Sort by relevance score (most relevant first) before passing to langlinks
+    scored_filtered = [(t, _relevance_score(query, t)) for t in filtered]
+    scored_filtered.sort(key=lambda x: x[1], reverse=True)
+    titles = [t for t, _ in scored_filtered][:limit]
+
     # Check langlinks for all found titles
-    return await check_langlinks(titles[:limit], source_lang, target_lang)
+    return await check_langlinks(titles, source_lang, target_lang)
 
 
 async def get_category_members_recursive(
