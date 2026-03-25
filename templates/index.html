@@ -11,8 +11,14 @@
   <header>
     <div class="glass-panel">
       <div class="panel-content" style="padding: 1.25rem 1.5rem;">
-        <h1><span>Wiki</span>Bridge</h1>
-        <p>Find Wikipedia articles missing between English and Spanish</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+          <div>
+            <h1><span>Wiki</span>Bridge</h1>
+            <p>Find Wikipedia articles missing between English and Spanish</p>
+            <p class="credit">Built by <a href="https://en.wikipedia.org/wiki/Wikipedia:WikiProject_Latino_and_Hispanic_heritage" target="_blank">WikiLatinos</a></p>
+          </div>
+          <button class="btn btn-secondary" onclick="document.getElementById('help-modal').style.display='flex'" style="align-self:start;">? How to Use</button>
+        </div>
       </div>
     </div>
   </header>
@@ -175,6 +181,94 @@
       </div>
     </div>
   </main>
+
+  <!-- Help Modal -->
+  <div id="help-modal" class="help-modal-backdrop" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+    <div class="help-modal">
+      <button class="help-close" onclick="document.getElementById('help-modal').style.display='none'">&times;</button>
+      <h2>How to Use WikiBridge</h2>
+
+      <div class="help-section">
+        <h3>Search Modes</h3>
+        <dl>
+          <dt>Topic Search</dt>
+          <dd>Type any topic (e.g., "Mexican literature", "Colombian musicians"). WikiBridge searches Wikipedia for related articles, then checks which ones are missing or weak in the other language.</dd>
+          <dt>Category Search</dt>
+          <dd>Enter an exact Wikipedia category name (e.g., "Mexican writers"). This pulls every article in that category. Toggle <strong>Include subcategories</strong> to go deeper.</dd>
+          <dt>Article List Check</dt>
+          <dd>Paste specific article titles (one per line) to check them individually.</dd>
+        </dl>
+      </div>
+
+      <div class="help-section">
+        <h3>Direction</h3>
+        <p><strong>EN exists, ES missing</strong> &mdash; Finds English articles that are missing or weak in Spanish.</p>
+        <p><strong>ES exists, EN missing</strong> &mdash; Finds Spanish articles that are missing or weak in English.</p>
+      </div>
+
+      <div class="help-section">
+        <h3>Stats Bar</h3>
+        <dl>
+          <dt>Articles Found</dt>
+          <dd>Total articles WikiBridge checked.</dd>
+          <dt>Missing in ES/EN</dt>
+          <dd>Articles that don't exist at all in the target language.</dd>
+          <dt>Coverage</dt>
+          <dd>Percentage of articles that have a translation. Higher = better coverage.</dd>
+          <dt>Stubs</dt>
+          <dd>Articles flagged as stubs &mdash; very short, incomplete articles.</dd>
+          <dt>Quality Issues</dt>
+          <dd>Articles with sourcing problems, missing images, or other flags.</dd>
+        </dl>
+      </div>
+
+      <div class="help-section">
+        <h3>Table Columns</h3>
+        <dl>
+          <dt>Title</dt>
+          <dd>The article name in the source language.</dd>
+          <dt>Views/mo</dt>
+          <dd>Monthly pageviews &mdash; how many people read this article. Higher views = more impact if improved.</dd>
+          <dt>In ES/EN</dt>
+          <dd><span class="badge exists" style="font-size:10px;">Yes</span> = translation exists. <span class="badge missing" style="font-size:10px;">Missing</span> = doesn't exist. If it exists, the translated title appears below.</dd>
+          <dt>Depth</dt>
+          <dd>How complete the translation is compared to the source. Shows target size vs source size as a percentage. <span style="color:var(--gap);">Red (&lt;20%)</span> = critically thin, <span style="color:var(--stub-color);">Yellow (&lt;60%)</span> = thin, <span style="color:var(--found);">Green (&gt;80%)</span> = good coverage.</dd>
+          <dt>EN/ES Quality</dt>
+          <dd>Quality flags for the source article: <span class="badge stub" style="font-size:10px;">Stub</span> (very short), <span class="badge warning" style="font-size:10px;">Citation needed</span>, <span class="badge warning" style="font-size:10px;">No image</span>, etc.</dd>
+          <dt>ES/EN Quality</dt>
+          <dd>Quality flags for the translated article (if it exists).</dd>
+          <dt>Priority</dt>
+          <dd>A computed score (higher = edit first). <span class="priority-score priority-high" style="font-size:11px;">80+</span> = high priority, <span class="priority-score priority-med" style="font-size:11px;">40-79</span> = medium, <span class="priority-score priority-low" style="font-size:11px;">&lt;40</span> = lower.</dd>
+          <dt>Links</dt>
+          <dd>Direct links to the article in each language.</dd>
+        </dl>
+      </div>
+
+      <div class="help-section">
+        <h3>Priority Score</h3>
+        <p>The priority number helps you decide what to work on first. It factors in:</p>
+        <ul>
+          <li>Page views (popular articles score higher)</li>
+          <li>Missing translation (+50 points)</li>
+          <li>Stub articles (+30 points)</li>
+          <li>Each quality issue (+10 points)</li>
+          <li>Thin translations under 20% depth (+35 points)</li>
+        </ul>
+      </div>
+
+      <div class="help-section">
+        <h3>Tips</h3>
+        <ul>
+          <li>Click any <strong>column header</strong> to sort the table.</li>
+          <li>Use <strong>Export CSV</strong> to download results for spreadsheets or Notion.</li>
+          <li>Start with <strong>Topic Search</strong> to explore, then use <strong>Category Search</strong> for systematic audits.</li>
+          <li>Articles with high priority + high views = biggest impact for your editing time.</li>
+        </ul>
+      </div>
+
+      <p class="help-footer">Built by <a href="https://en.wikipedia.org/wiki/Wikipedia:WikiProject_Latino_and_Hispanic_heritage" target="_blank">WikiLatinos</a> for the Maremoto Wikipedia Program</p>
+    </div>
+  </div>
 
   <script>
     // Tab switching
