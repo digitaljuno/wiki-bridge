@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}ClanDi — Impact Tracker{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1 data-i18n="tracker.title">Impact Tracker</h1>
+  <p data-i18n="tracker.subtitle">See how your edits are changing Wikipedia</p>
+</section>
+
+{% if user %}
+<!-- Personal Stats -->
+<section class="tracker-personal">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span data-i18n="tracker.personal">Your Impact</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">{{ personal.articles_edited }}</div>
+          <div class="stat-label" data-i18n="tracker.articles_edited">Articles Edited</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value found">{{ personal.articles_created }}</div>
+          <div class="stat-label" data-i18n="tracker.articles_created">Articles Created</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" style="color: var(--electric-blue);">{{ personal.total_views_display }}</div>
+          <div class="stat-label" data-i18n="tracker.total_views">Total Pageviews</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <button class="btn" onclick="fetchStats()" id="fetch-btn" data-i18n="tracker.fetch_stats">Refresh Stats</button>
+        <p id="fetch-status" style="color: var(--text-muted); margin-top: 0.5rem; display: none;"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Issue Area Breakdown -->
+{% if personal.issue_areas %}
+<section class="issue-areas">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span>Issue Areas</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <div class="issue-bars">
+        {% for area, count in personal.issue_areas.items() %}
+        <div class="issue-bar-row">
+          <span class="issue-label">{{ area }}</span>
+          <div class="issue-bar-track">
+            <div class="issue-bar-fill" style="width: {{ (count / personal.max_area * 100)|int }}%;"></div>
+          </div>
+          <span class="issue-count">{{ count }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Recent Contributions -->
+{% if contributions %}
+<section class="recent-contributions">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span data-i18n="dashboard.recent_activity">Recent Activity</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <div class="contrib-list">
+        {% for c in contributions[:20] %}
+        <div class="contrib-item">
+          <div class="contrib-type type-{{ c.contribution_type|lower }}">{{ c.contribution_type }}</div>
+          <div class="contrib-info">
+            <a href="https://{{ c.wiki_lang }}.wikipedia.org/wiki/{{ c.article_title|replace(' ', '_') }}" target="_blank" class="contrib-title">{{ c.article_title }}</a>
+            <span class="contrib-meta">{{ c.wiki_lang|upper }} &middot; {{ c.edit_timestamp[:10] }} &middot; {{ c.bytes_changed }}B</span>
+          </div>
+          {% if c.pageviews_30d > 0 %}
+          <div class="contrib-views">{{ c.pageviews_30d|int }} views/mo</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% elif not personal.articles_edited %}
+<section>
+  <div class="glass-panel">
+    <div class="panel-content" style="text-align: center; padding: 3rem;">
+      <p style="color: var(--text-muted); font-size: 1.1rem;" data-i18n="tracker.no_data">No contribution data yet. Click 'Refresh Stats' to fetch your Wikipedia edits.</p>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% else %}
+<!-- Not logged in -->
+<section>
+  <div class="glass-panel">
+    <div class="panel-content" style="text-align: center; padding: 3rem;">
+      <p style="color: var(--text-muted); font-size: 1.1rem;">Log in with your Wikipedia account to see your impact.</p>
+      <a href="/auth/login" class="btn" style="margin-top: 1rem;" data-i18n="nav.login">Log In with Wikipedia</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Community Stats -->
+<section class="tracker-community">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span data-i18n="tracker.community">Community Impact</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value found">{{ community.total_users }}</div>
+          <div class="stat-label" data-i18n="landing.stat_editors">Editors</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{ community.total_articles }}</div>
+          <div class="stat-label" data-i18n="landing.stat_articles">Articles Improved</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" style="color: var(--electric-blue);">{{ community.total_views_display }}</div>
+          <div class="stat-label" data-i18n="landing.stat_views">Pageviews Generated</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" style="color: var(--lavender);">{{ community.total_modules_completed }}</div>
+          <div class="stat-label">Modules Completed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function fetchStats() {
+    const btn = document.getElementById('fetch-btn');
+    const status = document.getElementById('fetch-status');
+    btn.disabled = true;
+    status.style.display = 'block';
+    status.textContent = translations['tracker.loading'] || 'Fetching your Wikipedia contributions...';
+
+    try {
+      const resp = await fetch('/api/tracker/refresh', { method: 'POST' });
+      const data = await resp.json();
+      if (data.success) {
+        window.location.reload();
+      } else {
+        status.textContent = data.error || 'Error fetching stats';
+        btn.disabled = false;
+      }
+    } catch (e) {
+      status.textContent = 'Error: ' + e.message;
+      btn.disabled = false;
+    }
+  }
+</script>
+{% endblock %}

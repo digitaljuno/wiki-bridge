@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="{{ lang or 'en' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ClanDi{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0D0221">
+  <meta name="description" content="ClanDi — Training, tracking, and closing Wikipedia knowledge gaps">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="clandi-nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">
+        <span class="logo-clan">Clan</span><span class="logo-di">Di</span>
+      </a>
+
+      <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <div class="nav-links">
+        {% if user %}
+        <a href="/dashboard" class="nav-link {% if active == 'dashboard' %}active{% endif %}" data-i18n="nav.dashboard">Dashboard</a>
+        <a href="/training" class="nav-link {% if active == 'training' %}active{% endif %}" data-i18n="nav.training">Training</a>
+        <a href="/gaps" class="nav-link {% if active == 'gaps' %}active{% endif %}" data-i18n="nav.gaps">Knowledge Gaps</a>
+        <a href="/tracker" class="nav-link {% if active == 'tracker' %}active{% endif %}" data-i18n="nav.tracker">Impact</a>
+        {% endif %}
+
+        <div class="nav-right">
+          <!-- Language toggle -->
+          <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language">
+            <span id="current-lang">{{ lang or 'EN' }}</span>
+          </button>
+
+          {% if user %}
+          <div class="nav-user">
+            <a href="/profile" class="nav-link nav-username">{{ user.display_name or user.wiki_username }}</a>
+            <a href="/auth/logout" class="btn btn-secondary btn-sm" data-i18n="nav.logout">Log Out</a>
+          </div>
+          {% else %}
+          <a href="/auth/login" class="btn btn-sm" data-i18n="nav.login">Log In with Wikipedia</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="clandi-footer">
+    <p>
+      <span data-i18n="app.built_by">Built by</span>
+      <a href="https://en.wikipedia.org/wiki/Wikipedia:WikiProject_Latino_and_Hispanic_heritage" target="_blank">WikiLatinos</a>
+      &middot;
+      <a href="https://maremoto.us" target="_blank">Maremoto</a>
+    </p>
+  </footer>
+
+  <!-- i18n System -->
+  <script>
+    let currentLang = localStorage.getItem('clandi-lang') || '{{ lang or "en" }}';
+    let translations = {};
+
+    async function loadTranslations(lang) {
+      try {
+        const resp = await fetch(`/static/lang/${lang}.json`);
+        translations = await resp.json();
+        applyTranslations();
+      } catch (e) {
+        console.error('Failed to load translations:', e);
+      }
+    }
+
+    function applyTranslations() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[key]) {
+          if (el.tagName === 'INPUT' && el.type !== 'submit') {
+            el.placeholder = translations[key];
+          } else {
+            el.textContent = translations[key];
+          }
+        }
+      });
+      document.getElementById('current-lang').textContent = currentLang.toUpperCase();
+      document.documentElement.lang = currentLang;
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'es' : 'en';
+      localStorage.setItem('clandi-lang', currentLang);
+      loadTranslations(currentLang);
+      // Update server-side preference if logged in
+      fetch(`/api/set-language?lang=${currentLang}`, { method: 'POST' }).catch(() => {});
+    }
+
+    function t(key) {
+      return translations[key] || key;
+    }
+
+    // Load translations on page load
+    loadTranslations(currentLang);
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

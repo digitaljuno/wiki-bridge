@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}ClanDi — Profile{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1 data-i18n="profile.title">Your Profile</h1>
+</section>
+
+<!-- User Info -->
+<section class="profile-info">
+  <div class="glass-panel">
+    <div class="panel-content" style="padding: 1.5rem 2rem;">
+      <div class="profile-header">
+        <div class="profile-avatar">{{ (user.display_name or user.wiki_username)[:1]|upper }}</div>
+        <div class="profile-details">
+          <h2>{{ user.display_name or user.wiki_username }}</h2>
+          <p class="profile-meta">
+            <span class="level-badge level-{{ user.role }}">{{ user.role|title }}</span>
+            &middot; {{ user.organization }}
+            &middot; <a href="https://en.wikipedia.org/wiki/User:{{ user.wiki_username|replace(' ', '_') }}" target="_blank">Wikipedia Profile</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Badges -->
+<section class="profile-badges">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span data-i18n="profile.badges">Badges</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      {% if badges %}
+      <div class="badge-showcase">
+        {% for badge in badges %}
+        <div class="badge-card">
+          <div class="badge-icon-lg">{{ badge_icons.get(badge.key, '&#x2B50;')|safe }}</div>
+          <div class="badge-card-name">{{ badge.get('name_en', badge.key) }}</div>
+          <div class="badge-card-desc">{{ badge.get('desc_en', '') }}</div>
+          <div class="badge-card-date">{{ badge.earned_at[:10] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="empty-state" data-i18n="profile.no_badges">No badges yet. Complete training modules and make edits to earn badges!</p>
+      {% endif %}
+
+      <!-- Unearned badges preview -->
+      {% if unearned_badges %}
+      <h4 style="margin-top: 1.5rem; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em;">Coming Up</h4>
+      <div class="badge-showcase faded">
+        {% for key, defn in unearned_badges.items() %}
+        <div class="badge-card locked">
+          <div class="badge-icon-lg">&#x1F512;</div>
+          <div class="badge-card-name">{{ defn.get('name_en', key) }}</div>
+          <div class="badge-card-desc">{{ defn.get('desc_en', '') }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Props Received -->
+<section class="profile-props">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span data-i18n="profile.props_received">Props Received</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      {% if props %}
+      <div class="props-list">
+        {% for prop in props %}
+        <div class="prop-item">
+          <div class="prop-from">{{ prop.from_display or prop.from_username }}</div>
+          <div class="prop-message">{{ prop.message }}</div>
+          <div class="prop-date">{{ prop.created_at[:10] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="empty-state" data-i18n="profile.no_props">No props received yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Send Props -->
+<section class="send-props">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span data-i18n="profile.send_prop">Send Props</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <div class="prop-form">
+        <div class="form-group">
+          <label data-i18n="profile.select_user">Select an editor</label>
+          <select id="prop-to">
+            <option value="">--</option>
+            {% for u in all_users %}
+            {% if u.id != user.id %}
+            <option value="{{ u.id }}">{{ u.display_name or u.wiki_username }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n="profile.prop_message">Write a note of recognition...</label>
+          <textarea id="prop-message" rows="3" data-i18n="profile.prop_message"></textarea>
+        </div>
+        <button class="btn" onclick="sendProp()" data-i18n="profile.send">Send</button>
+        <p id="prop-status" style="color: var(--found); margin-top: 0.5rem; display: none;"></p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function sendProp() {
+    const toId = document.getElementById('prop-to').value;
+    const message = document.getElementById('prop-message').value.trim();
+    const status = document.getElementById('prop-status');
+
+    if (!toId || !message) {
+      status.style.display = 'block';
+      status.style.color = 'var(--gap)';
+      status.textContent = 'Please select an editor and write a message.';
+      return;
+    }
+
+    try {
+      const resp = await fetch('/api/props/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to_user_id: parseInt(toId), message }),
+      });
+      const data = await resp.json();
+      if (data.success) {
+        status.style.display = 'block';
+        status.style.color = 'var(--found)';
+        status.textContent = 'Props sent!';
+        document.getElementById('prop-message').value = '';
+        document.getElementById('prop-to').value = '';
+      } else {
+        status.style.display = 'block';
+        status.style.color = 'var(--gap)';
+        status.textContent = data.error || 'Could not send props.';
+      }
+    } catch (e) {
+      status.style.display = 'block';
+      status.style.color = 'var(--gap)';
+      status.textContent = 'Error: ' + e.message;
+    }
+  }
+</script>
+{% endblock %}

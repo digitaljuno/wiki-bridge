@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+{% block title %}ClanDi — Knowledge Gap Finder{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1 data-i18n="gaps.title">Knowledge Gap Finder</h1>
+  <p data-i18n="gaps.subtitle">Find Wikipedia articles missing between English and Spanish</p>
+</section>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" data-tab="topic">Topic Search</button>
+  <button class="tab" data-tab="category">Category Search</button>
+  <button class="tab" data-tab="articles">Article List Check</button>
+</div>
+
+<!-- Topic Search Panel -->
+<div class="search-panel active" id="panel-topic">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span>Search</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <div class="form-row">
+        <div class="form-group" style="flex: 2;">
+          <label for="topic-input">Topic</label>
+          <input type="text" id="topic-input" placeholder='e.g., "Mexican literature", "Colombian musicians"'>
+        </div>
+        <div class="form-group" style="flex: 0 0 auto; min-width: 180px;">
+          <label for="topic-direction">Direction</label>
+          <select id="topic-direction">
+            <option value="es_missing_en">EN exists, ES missing</option>
+            <option value="en_missing_es">ES exists, EN missing</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex: 0 0 auto; min-width: 100px;">
+          <label for="topic-limit">Limit</label>
+          <select id="topic-limit">
+            <option value="50">50</option>
+            <option value="100" selected>100</option>
+            <option value="200">200</option>
+            <option value="500">500</option>
+          </select>
+        </div>
+        <button class="btn" onclick="searchTopic()">Search</button>
+      </div>
+      <p class="direction-hint">
+        Searches Wikipedia for articles on this topic, then checks which ones are <strong>missing</strong> in the other language.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Category Search Panel -->
+<div class="search-panel" id="panel-category">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span>Category Search</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <div class="form-row">
+        <div class="form-group" style="flex: 2;">
+          <label for="category-input">Wikipedia Category</label>
+          <input type="text" id="category-input" placeholder='e.g., "Mexican writers", "Latin American novels"'>
+        </div>
+        <div class="form-group" style="flex: 0 0 auto; min-width: 180px;">
+          <label for="cat-direction">Direction</label>
+          <select id="cat-direction">
+            <option value="es_missing_en">EN exists, ES missing</option>
+            <option value="en_missing_es">ES exists, EN missing</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex: 0 0 auto; min-width: 100px;">
+          <label for="cat-limit">Limit</label>
+          <select id="cat-limit">
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200" selected>200</option>
+            <option value="500">500</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex: 0 0 auto; min-width: auto; justify-content: end;">
+          <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; text-transform: none; font-weight: 500;">
+            <input type="checkbox" id="cat-deep"> Include subcategories
+          </label>
+          <button class="btn" onclick="searchCategory()">Search</button>
+        </div>
+      </div>
+      <p class="direction-hint">
+        Fetches all articles in a Wikipedia category and checks coverage. Use exact Wikipedia category names.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Article List Panel -->
+<div class="search-panel" id="panel-articles">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span>Article List Check</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <div class="form-row" style="align-items: stretch;">
+        <div class="form-group" style="flex: 2;">
+          <label for="articles-input">Article Titles (one per line)</label>
+          <textarea id="articles-input" placeholder="Paste article titles here, one per line&#10;e.g.:&#10;Gabriel García Márquez&#10;Octavio Paz&#10;Sor Juana Inés de la Cruz"></textarea>
+        </div>
+        <div class="form-group" style="flex: 0 0 auto; min-width: 180px;">
+          <label for="articles-source">Source Language</label>
+          <select id="articles-source">
+            <option value="en">English (EN)</option>
+            <option value="es">Spanish (ES)</option>
+          </select>
+          <label for="articles-target" style="margin-top: 0.75rem;">Check Against</label>
+          <select id="articles-target">
+            <option value="es">Spanish (ES)</option>
+            <option value="en">English (EN)</option>
+          </select>
+          <button class="btn" onclick="checkArticles()" style="margin-top: auto;">Check</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div id="loading" style="display: none;">
+  <div class="loading">
+    <div class="glass-panel" style="display:inline-block; min-width: 280px;">
+      <div class="panel-content" style="padding:2rem 3rem;text-align:center;">
+        <div class="spinner"></div>
+        <p style="margin-top: 1rem; color: var(--text-muted);">Querying Wikipedia...</p>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Results -->
+<div id="results-area">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span>Results</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <div class="results-header">
+        <div class="stats" id="stats"></div>
+        <button class="btn btn-secondary" id="export-btn" onclick="exportCSV()" style="display: none;">
+          Export CSV
+        </button>
+      </div>
+      <div id="error-container"></div>
+      <div style="overflow-x: auto;">
+        <table class="results-table" id="results-table">
+          <thead id="table-head"></thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Help Modal -->
+<div id="help-modal" class="help-modal-backdrop" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="help-modal">
+    <button class="help-close" onclick="document.getElementById('help-modal').style.display='none'">&times;</button>
+    <h2>WikiBridge Guide</h2>
+    <div class="help-section">
+      <h3>Search Modes</h3>
+      <dl>
+        <dt>Topic Search</dt><dd>Type any topic. WikiBridge searches Wikipedia, then checks which articles are missing or weak in the other language.</dd>
+        <dt>Category Search</dt><dd>Enter an exact Wikipedia category name. Toggle <strong>Include subcategories</strong> to go deeper.</dd>
+        <dt>Article List Check</dt><dd>Paste specific article titles (one per line) to check them individually.</dd>
+      </dl>
+    </div>
+    <div class="help-section">
+      <h3>Priority Score</h3>
+      <p>Higher = edit first. Factors: page views, missing translation (+50), stub status (+30), quality issues (+10 each), thin translations.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.search-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  let currentResults = [];
+  let currentMode = '';
+  let sortCol = null;
+  let sortAsc = true;
+
+  function showLoading() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results-area').style.display = 'none';
+  }
+  function hideLoading() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('results-area').style.display = 'block';
+  }
+  function showError(msg) {
+    document.getElementById('error-container').innerHTML = '<div class="error-msg">' + escapeHtml(msg) + '</div>';
+  }
+  function clearError() { document.getElementById('error-container').innerHTML = ''; }
+  function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+  function qualityBadges(r, prefix) {
+    const isStub = prefix ? r[prefix + '_is_stub'] : r.is_stub;
+    const issues = prefix ? (r[prefix + '_quality'] || []) : (r.quality_issues || []);
+    const stubType = prefix ? '' : (r.stub_type || '');
+    const badges = [];
+    if (isStub) { const tip = stubType ? escapeHtml(stubType) : 'Stub article'; badges.push(`<span class="badge stub" title="${tip}">Stub</span>`); }
+    if (issues.length > 0) { issues.forEach(issue => { badges.push(`<span class="badge warning" title="${escapeHtml(issue)}">${escapeHtml(issue)}</span>`); }); }
+    return badges.length > 0 ? badges.join(' ') : '<span style="color:var(--text-muted);">OK</span>';
+  }
+
+  function formatViews(n) {
+    if (!n || n === 0) return '<span style="color:var(--text-muted);">\u2014</span>';
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+    return n.toLocaleString();
+  }
+  function formatBytes(n) { if (!n || n === 0) return '\u2014'; if (n >= 1000) return (n / 1000).toFixed(1) + 'KB'; return n + 'B'; }
+
+  function depthBar(r) {
+    if (!r.has_translation || !r.source_bytes) return '';
+    const pct = r.depth_pct || 0;
+    const color = pct < 20 ? 'var(--gap)' : pct < 40 ? '#FF9800' : pct < 60 ? 'var(--stub-color)' : pct < 80 ? '#8BC34A' : 'var(--found)';
+    return `<div style="margin-top:4px;"><div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--text-muted);"><span>${formatBytes(r.target_bytes)}</span><span style="font-weight:700;color:${color};">${pct}%</span><span>${formatBytes(r.source_bytes)}</span></div><div style="background:rgba(255,255,255,0.08);border-radius:999px;height:4px;margin-top:3px;"><div style="background:${color};border-radius:999px;height:4px;width:${Math.min(pct, 100)}%;transition:width 0.5s ease;"></div></div></div>`;
+  }
+
+  async function searchTopic() {
+    const topic = document.getElementById('topic-input').value.trim();
+    if (!topic) return;
+    const direction = document.getElementById('topic-direction').value;
+    const limit = document.getElementById('topic-limit').value;
+    showLoading();
+    try {
+      const resp = await fetch(`/api/topic-search?topic=${encodeURIComponent(topic)}&direction=${direction}&limit=${limit}`);
+      const data = await resp.json();
+      if (data.error) { hideLoading(); showError(data.error); return; }
+      currentResults = data.results; currentMode = 'topic';
+      renderGapResults(data, direction);
+    } catch (e) { hideLoading(); showError('Request failed: ' + e.message); }
+  }
+
+  async function searchCategory() {
+    const category = document.getElementById('category-input').value.trim();
+    if (!category) return;
+    const direction = document.getElementById('cat-direction').value;
+    const limit = document.getElementById('cat-limit').value;
+    const deep = document.getElementById('cat-deep').checked;
+    showLoading();
+    try {
+      const resp = await fetch(`/api/category-search?category=${encodeURIComponent(category)}&direction=${direction}&limit=${limit}&deep=${deep}`);
+      const data = await resp.json();
+      if (data.error) { hideLoading(); showError(data.error); return; }
+      currentResults = data.results; currentMode = 'category';
+      renderGapResults(data, direction);
+    } catch (e) { hideLoading(); showError('Request failed: ' + e.message); }
+  }
+
+  async function checkArticles() {
+    const text = document.getElementById('articles-input').value.trim();
+    if (!text) return;
+    const titles = text.split('\n').map(t => t.trim()).filter(Boolean);
+    const source = document.getElementById('articles-source').value;
+    const target = document.getElementById('articles-target').value;
+    if (source === target) { showError('Source and target languages must be different.'); document.getElementById('results-area').style.display = 'block'; return; }
+    showLoading();
+    try {
+      const resp = await fetch(`/api/check-articles?titles=${encodeURIComponent(titles.join('|'))}&source_lang=${source}&target_lang=${target}`);
+      const data = await resp.json();
+      if (data.error) { hideLoading(); showError(data.error); return; }
+      currentResults = data.results; currentMode = 'articles';
+      renderArticleResults(data);
+    } catch (e) { hideLoading(); showError('Request failed: ' + e.message); }
+  }
+
+  function renderGapResults(data, direction) {
+    hideLoading(); clearError();
+    const sourceLang = direction === 'es_missing_en' ? 'EN' : 'ES';
+    const targetLang = direction === 'es_missing_en' ? 'ES' : 'EN';
+    const totalSearched = data.total_searched || data.total_in_category || 0;
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><div class="stat-value">${totalSearched}</div><div class="stat-label">Articles Found</div></div>
+      <div class="stat"><div class="stat-value gap">${data.total_gaps||0}</div><div class="stat-label">Missing in ${targetLang}</div></div>
+      <div class="stat"><div class="stat-value found">${data.coverage_pct||0}%</div><div class="stat-label">Coverage</div></div>
+      <div class="stat"><div class="stat-value stub">${data.total_stubs||0}</div><div class="stat-label">${sourceLang} Stubs</div></div>
+      <div class="stat"><div class="stat-value warning-val">${data.total_quality_issues||0}</div><div class="stat-label">${sourceLang} Quality Issues</div></div>
+      <div class="stat"><div class="stat-value warning-val">${data.total_target_issues||0}</div><div class="stat-label">${targetLang} Quality Issues</div></div>`;
+    document.getElementById('export-btn').style.display = (data.results||[]).length > 0 ? 'inline-block' : 'none';
+    document.getElementById('table-head').innerHTML = `<tr><th onclick="sortTable(0)">Title</th><th onclick="sortNumeric(1)">Views/mo</th><th onclick="sortTable(2)">In ${targetLang}</th><th onclick="sortNumeric(3)">Depth</th><th onclick="sortTable(4)">${sourceLang} Quality</th><th onclick="sortTable(5)">${targetLang} Quality</th><th onclick="sortNumeric(6)">Priority</th><th>Links</th></tr>`;
+    const tbody = document.getElementById('table-body');
+    const results = data.results || [];
+    tbody.innerHTML = results.map(r => {
+      const hasT = r.has_translation; const sc = hasT ? 'exists' : 'missing'; const st = hasT ? 'Yes' : 'Missing';
+      const title = r.title||r.label||r.article||''; const tt = r.target_title||'';
+      const url = r.source_url||r.wikipedia_url||'';
+      const tu = hasT && tt ? `https://${direction==='es_missing_en'?'es':'en'}.wikipedia.org/wiki/${encodeURIComponent(tt.replace(/ /g,'_'))}` : '';
+      const p = r.priority||0; const pc = p>=80?'priority-high':p>=40?'priority-med':'priority-low';
+      return `<tr><td><strong>${escapeHtml(title)}</strong></td><td data-sort="${r.monthly_views||0}">${formatViews(r.monthly_views)}</td><td><span class="badge ${sc}">${st}</span>${hasT?'<br><small style="color:var(--text-muted);">'+escapeHtml(tt)+'</small>':''}</td><td data-sort="${r.depth_pct||0}" style="min-width:120px;">${hasT?depthBar(r):'<span style="color:var(--text-muted);">\u2014</span>'}</td><td>${qualityBadges(r)}</td><td>${hasT?qualityBadges(r,'target'):'<span style="color:var(--text-muted);">N/A</span>'}</td><td data-sort="${p}"><span class="priority-score ${pc}">${p}</span></td><td>${url?`<a href="${escapeHtml(url)}" target="_blank">${sourceLang}</a>`:''}${tu?` · <a href="${escapeHtml(tu)}" target="_blank">${targetLang}</a>`:''}</td></tr>`;
+    }).join('');
+    if (results.length === 0) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted);">No results found.</td></tr>';
+  }
+
+  function renderArticleResults(data) {
+    hideLoading(); clearError();
+    const source = document.getElementById('articles-source').value.toUpperCase();
+    const target = document.getElementById('articles-target').value.toUpperCase();
+    const targetLangCode = document.getElementById('articles-target').value;
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><div class="stat-value">${data.total_checked}</div><div class="stat-label">Checked</div></div>
+      <div class="stat"><div class="stat-value gap">${data.total_missing}</div><div class="stat-label">Missing in ${target}</div></div>
+      <div class="stat"><div class="stat-value found">${data.coverage_pct}%</div><div class="stat-label">Coverage</div></div>
+      <div class="stat"><div class="stat-value stub">${data.total_stubs||0}</div><div class="stat-label">${source} Stubs</div></div>
+      <div class="stat"><div class="stat-value warning-val">${data.total_quality_issues||0}</div><div class="stat-label">${source} Quality Issues</div></div>
+      <div class="stat"><div class="stat-value warning-val">${data.total_target_issues||0}</div><div class="stat-label">${target} Quality Issues</div></div>`;
+    document.getElementById('export-btn').style.display = data.results.length > 0 ? 'inline-block' : 'none';
+    document.getElementById('table-head').innerHTML = `<tr><th onclick="sortTable(0)">Title</th><th onclick="sortNumeric(1)">Views/mo</th><th onclick="sortTable(2)">In ${target}</th><th onclick="sortNumeric(3)">Depth</th><th onclick="sortTable(4)">${source} Quality</th><th onclick="sortTable(5)">${target} Quality</th><th onclick="sortNumeric(6)">Priority</th><th>Links</th></tr>`;
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = data.results.map(r => {
+      const sc = r.has_translation ? 'exists' : 'missing'; const st = r.has_translation ? 'Yes' : 'Missing';
+      const tu = r.has_translation && r.target_title ? `https://${targetLangCode}.wikipedia.org/wiki/${encodeURIComponent(r.target_title.replace(/ /g,'_'))}` : '';
+      const p = r.priority||0; const pc = p>=80?'priority-high':p>=40?'priority-med':'priority-low';
+      return `<tr><td><strong>${escapeHtml(r.title)}</strong></td><td data-sort="${r.monthly_views||0}">${formatViews(r.monthly_views)}</td><td><span class="badge ${sc}">${st}</span>${r.has_translation?'<br><small style="color:var(--text-muted);">'+escapeHtml(r.target_title)+'</small>':''}</td><td data-sort="${r.depth_pct||0}" style="min-width:120px;">${r.has_translation?depthBar(r):'<span style="color:var(--text-muted);">\u2014</span>'}</td><td>${qualityBadges(r)}</td><td>${r.has_translation?qualityBadges(r,'target'):'<span style="color:var(--text-muted);">N/A</span>'}</td><td data-sort="${p}"><span class="priority-score ${pc}">${p}</span></td><td><a href="${escapeHtml(r.source_url)}" target="_blank">${source}</a>${tu?` · <a href="${escapeHtml(tu)}" target="_blank">${target}</a>`:''}</td></tr>`;
+    }).join('');
+  }
+
+  function sortTable(ci) { if(sortCol===ci){sortAsc=!sortAsc}else{sortCol=ci;sortAsc=true} const tb=document.getElementById('table-body');const rows=Array.from(tb.querySelectorAll('tr'));rows.sort((a,b)=>{const at=a.children[ci]?.textContent||'';const bt=b.children[ci]?.textContent||'';return sortAsc?at.localeCompare(bt):bt.localeCompare(at)});rows.forEach(r=>tb.appendChild(r));}
+  function sortNumeric(ci) { if(sortCol===ci){sortAsc=!sortAsc}else{sortCol=ci;sortAsc=false} const tb=document.getElementById('table-body');const rows=Array.from(tb.querySelectorAll('tr'));rows.sort((a,b)=>{const av=parseFloat(a.children[ci]?.getAttribute('data-sort')||'0');const bv=parseFloat(b.children[ci]?.getAttribute('data-sort')||'0');return sortAsc?av-bv:bv-av});rows.forEach(r=>tb.appendChild(r));}
+  function exportCSV() { if(!currentResults||currentResults.length===0)return;const json=JSON.stringify(currentResults);window.location.href=`/api/export-csv?data_json=${encodeURIComponent(json)}`;}
+
+  document.getElementById('topic-input').addEventListener('keydown', e => { if (e.key === 'Enter') searchTopic(); });
+  document.getElementById('category-input').addEventListener('keydown', e => { if (e.key === 'Enter') searchCategory(); });
+</script>
+{% endblock %}

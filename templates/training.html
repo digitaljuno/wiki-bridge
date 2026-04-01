@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}ClanDi — Wiki 101 Training{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1 data-i18n="training.title">Wiki 101 Training</h1>
+  <p data-i18n="training.subtitle">Master Wikipedia editing through 6 progressive modules</p>
+</section>
+
+<!-- Progress Bar -->
+<section class="training-progress-bar">
+  <div class="glass-panel">
+    <div class="panel-content" style="padding: 1rem 1.5rem;">
+      <div class="progress-header">
+        <span data-i18n="training.progress">Progress</span>
+        <span class="progress-count">{{ completed|length }} / 6</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" style="width: {{ (completed|length / 6 * 100)|int }}%;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Skill Tree Visual -->
+<section class="skill-tree">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span data-i18n="training.skill_tree">Skill Tree</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <div class="skill-tracks">
+        <div class="skill-track">
+          <div class="track-label" data-i18n="training.track_basics">Wiki Basics</div>
+          <div class="track-nodes">
+            <div class="skill-node {% if 1 in completed %}completed{% elif 1 == next_module %}available{% else %}locked{% endif %}" data-module="1">
+              <span class="node-number">1</span>
+            </div>
+            <div class="skill-connector {% if 1 in completed %}completed{% endif %}"></div>
+            <div class="skill-node {% if 2 in completed %}completed{% elif 2 == next_module %}available{% else %}locked{% endif %}" data-module="2">
+              <span class="node-number">2</span>
+            </div>
+          </div>
+        </div>
+        <div class="skill-track">
+          <div class="track-label" data-i18n="training.track_content">Content Creation</div>
+          <div class="track-nodes">
+            <div class="skill-node {% if 3 in completed %}completed{% elif 3 == next_module %}available{% else %}locked{% endif %}" data-module="3">
+              <span class="node-number">3</span>
+            </div>
+            <div class="skill-connector {% if 3 in completed %}completed{% endif %}"></div>
+            <div class="skill-node {% if 4 in completed %}completed{% elif 4 == next_module %}available{% else %}locked{% endif %}" data-module="4">
+              <span class="node-number">4</span>
+            </div>
+          </div>
+        </div>
+        <div class="skill-track">
+          <div class="track-label" data-i18n="training.track_community">Community & Leadership</div>
+          <div class="track-nodes">
+            <div class="skill-node {% if 5 in completed %}completed{% elif 5 == next_module %}available{% else %}locked{% endif %}" data-module="5">
+              <span class="node-number">5</span>
+            </div>
+            <div class="skill-connector {% if 5 in completed %}completed{% endif %}"></div>
+            <div class="skill-node {% if 6 in completed %}completed{% elif 6 == next_module %}available{% else %}locked{% endif %}" data-module="6">
+              <span class="node-number">6</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Module Cards -->
+<section class="module-list">
+  {% for mod in modules %}
+  <div class="module-card glass-panel" id="module-{{ mod.number }}">
+    <div class="module-header" onclick="toggleModule({{ mod.number }})">
+      <div class="module-header-left">
+        <div class="module-status {% if mod.number in completed %}completed{% elif mod.number == next_module %}available{% else %}locked{% endif %}">
+          {% if mod.number in completed %}
+            <span>&#x2713;</span>
+          {% else %}
+            <span>{{ mod.number }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <h3 class="module-title">{{ mod.title }}</h3>
+          <p class="module-track">{{ mod.track }}</p>
+        </div>
+      </div>
+      <div class="module-header-right">
+        {% if mod.number in completed %}
+        <span class="badge exists" data-i18n="training.completed">Completed</span>
+        {% elif mod.number == next_module %}
+        <span class="module-expand-icon">&#x25BC;</span>
+        {% else %}
+        <span class="badge stub" data-i18n="training.locked">Complete previous modules first</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="module-body" id="module-body-{{ mod.number }}" style="display: none;">
+      <div class="module-content">
+        {{ mod.content_html|safe }}
+      </div>
+
+      {% if mod.videos %}
+      <div class="module-videos">
+        <h4>Videos</h4>
+        {% for video in mod.videos %}
+        <a href="{{ video.url }}" target="_blank" class="video-link">
+          &#x25B6; {{ video.title }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if user and mod.number not in completed and mod.number <= next_module %}
+      <div class="module-actions">
+        <button class="btn" onclick="completeModule({{ mod.number }})" data-i18n="training.mark_complete">Mark as Complete</button>
+      </div>
+      {% elif not user %}
+      <div class="module-actions">
+        <p style="color: var(--text-muted);">Log in to track your progress</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function toggleModule(num) {
+    const body = document.getElementById('module-body-' + num);
+    const isOpen = body.style.display !== 'none';
+    // Close all
+    document.querySelectorAll('.module-body').forEach(b => b.style.display = 'none');
+    document.querySelectorAll('.module-card').forEach(c => c.classList.remove('expanded'));
+    // Toggle this one
+    if (!isOpen) {
+      body.style.display = 'block';
+      body.closest('.module-card').classList.add('expanded');
+      body.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  async function completeModule(num) {
+    try {
+      const resp = await fetch(`/api/training/complete/${num}`, { method: 'POST' });
+      const data = await resp.json();
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.error || 'Could not mark module as complete');
+      }
+    } catch (e) {
+      alert('Error: ' + e.message);
+    }
+  }
+
+  // Auto-open the next available module
+  {% if next_module and next_module not in completed %}
+  document.addEventListener('DOMContentLoaded', () => {
+    // Small delay so i18n loads first
+    setTimeout(() => toggleModule({{ next_module }}), 300);
+  });
+  {% endif %}
+</script>
+{% endblock %}

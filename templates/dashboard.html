@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}ClanDi — Dashboard{% endblock %}
+
+{% block content %}
+<!-- Welcome -->
+<section class="dashboard-welcome">
+  <div class="glass-panel">
+    <div class="panel-content" style="padding: 1.5rem 2rem;">
+      <div class="welcome-row">
+        <div>
+          <h1 class="welcome-title">
+            <span data-i18n="dashboard.welcome">Welcome back</span>, {{ user.display_name or user.wiki_username }}
+          </h1>
+          <p class="welcome-level">
+            <span class="level-badge level-{{ user.role }}">{{ user.role|title }}</span>
+          </p>
+        </div>
+        <div class="welcome-streak" title="Consecutive active weeks">
+          <span class="streak-number">{{ consecutive_weeks }}</span>
+          <span class="streak-label" data-i18n="dashboard.weeks_active">weeks active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mission Dashboard (Layer 1) -->
+<section class="mission-dashboard">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span data-i18n="dashboard.mission_title">Community Mission</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value found">{{ community.total_users }}</div>
+          <div class="stat-label" data-i18n="landing.stat_editors">Editors</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{ community.total_articles }}</div>
+          <div class="stat-label" data-i18n="landing.stat_articles">Articles Improved</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" style="color: var(--electric-blue);">{{ community.total_views_display }}</div>
+          <div class="stat-label" data-i18n="landing.stat_views">Pageviews Generated</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" style="color: var(--lavender);">{{ community.total_badges }}</div>
+          <div class="stat-label" data-i18n="dashboard.badges_earned">Badges Earned</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Your Progress -->
+<section class="your-progress">
+  <div class="dashboard-grid">
+    <!-- Training Progress -->
+    <div class="glass-panel">
+      <div class="panel-header">
+        <span data-i18n="dashboard.training_progress">Training</span>
+        <span class="iridescent-dot"></span>
+      </div>
+      <div class="panel-content">
+        <div class="progress-ring-container">
+          <div class="progress-ring" data-progress="{{ (completed_modules|length / 6 * 100)|int }}">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="42" class="progress-ring-bg"/>
+              <circle cx="50" cy="50" r="42" class="progress-ring-fill"
+                stroke-dasharray="{{ (completed_modules|length / 6 * 264)|int }} 264"/>
+            </svg>
+            <div class="progress-ring-text">
+              <span class="progress-ring-value">{{ completed_modules|length }}</span>
+              <span class="progress-ring-label">/ 6</span>
+            </div>
+          </div>
+          <p class="progress-caption" data-i18n="dashboard.modules_completed">modules completed</p>
+        </div>
+        <a href="/training" class="btn btn-block" data-i18n="dashboard.start_training">Start Training</a>
+      </div>
+    </div>
+
+    <!-- Badges -->
+    <div class="glass-panel">
+      <div class="panel-header">
+        <span data-i18n="dashboard.badges_earned">Badges Earned</span>
+        <span class="iridescent-dot"></span>
+      </div>
+      <div class="panel-content">
+        {% if badges %}
+        <div class="badge-grid">
+          {% for badge in badges %}
+          <div class="badge-item" title="{{ badge.get('desc_en', '') }}">
+            <div class="badge-icon">{{ badge_icons.get(badge.key, '&#x2B50;')|safe }}</div>
+            <div class="badge-name">{{ badge.get('name_en', badge.key) }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state" data-i18n="profile.no_badges">No badges yet. Complete training modules and make edits to earn badges!</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="glass-panel">
+      <div class="panel-header">
+        <span data-i18n="dashboard.quick_links">Quick Links</span>
+        <span class="iridescent-dot"></span>
+      </div>
+      <div class="panel-content">
+        <div class="quick-links">
+          <a href="/training" class="quick-link">
+            <span class="quick-link-icon">&#x1F393;</span>
+            <span data-i18n="dashboard.start_training">Start Training</span>
+          </a>
+          <a href="/gaps" class="quick-link">
+            <span class="quick-link-icon">&#x1F50D;</span>
+            <span data-i18n="dashboard.find_gaps">Find Knowledge Gaps</span>
+          </a>
+          <a href="/tracker" class="quick-link">
+            <span class="quick-link-icon">&#x1F4CA;</span>
+            <span data-i18n="dashboard.view_impact">View Your Impact</span>
+          </a>
+          <a href="https://discord.gg/wikilatino" target="_blank" class="quick-link">
+            <span class="quick-link-icon">&#x1F4AC;</span>
+            <span>Discord Community</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Community Needs (Layer 1 continued) -->
+<section class="community-needs">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span data-i18n="dashboard.community_needs">The community needs...</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <p style="color: var(--text-muted); margin-bottom: 1rem;">High-priority articles that need your help right now:</p>
+      <div class="needs-list">
+        <a href="/gaps" class="need-item">
+          <span class="need-priority priority-high">High</span>
+          <span>Find and fix content gaps using WikiBridge</span>
+          <span class="need-arrow">&rarr;</span>
+        </a>
+        <a href="/training" class="need-item">
+          <span class="need-priority priority-med">Start</span>
+          <span>Complete Wiki 101 training to get started</span>
+          <span class="need-arrow">&rarr;</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Weekly Momentum (Layer 4) -->
+{% if momentum_weeks %}
+<section class="momentum-section">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span data-i18n="dashboard.momentum">Weekly Momentum</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <div class="momentum-grid">
+        {% for week in momentum_weeks %}
+        <div class="momentum-week {% if week.actions_count > 0 %}active{% endif %}" title="{{ week.week_start }}: {{ week.actions_count }} actions">
+          <div class="momentum-bar" style="height: {{ [week.actions_count * 10, 100]|min }}%;"></div>
+        </div>
+        {% endfor %}
+      </div>
+      <p class="momentum-caption">
+        <span class="streak-number">{{ consecutive_weeks }}</span>
+        <span data-i18n="dashboard.weeks_active">weeks active</span>
+      </p>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

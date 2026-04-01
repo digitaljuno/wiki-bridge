@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}ClanDi — Edit Wikipedia. Close Knowledge Gaps. Build Power.{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero">
+  <div class="glass-panel hero-panel">
+    <div class="panel-content" style="padding: 3rem 2rem; text-align: center;">
+      <h1 class="hero-title" data-i18n="landing.hero_title">Edit Wikipedia. Close Knowledge Gaps. Build Power.</h1>
+      <p class="hero-subtitle" data-i18n="landing.hero_subtitle">ClanDi is a free, bilingual tool that trains volunteers to improve Wikipedia content on reproductive justice, Latino heritage, and underrepresented communities.</p>
+      <div class="hero-cta">
+        {% if oauth_configured %}
+        <a href="/auth/login" class="btn btn-lg" data-i18n="landing.cta_login">Log In with Wikipedia</a>
+        {% else %}
+        <a href="/training" class="btn btn-lg" data-i18n="landing.cta">Get Started</a>
+        {% endif %}
+      </div>
+      <p class="hero-invite" data-i18n="landing.invite_only">Currently invite-only</p>
+    </div>
+  </div>
+</section>
+
+<!-- Community Impact Stats -->
+<section class="community-stats">
+  <h2 class="section-title" data-i18n="landing.community_title">Community Impact</h2>
+  <div class="stats-row">
+    <div class="stat-card glass-panel">
+      <div class="panel-content">
+        <div class="stat-value found">{{ stats.total_users }}</div>
+        <div class="stat-label" data-i18n="landing.stat_editors">Editors</div>
+      </div>
+    </div>
+    <div class="stat-card glass-panel">
+      <div class="panel-content">
+        <div class="stat-value">{{ stats.total_articles }}</div>
+        <div class="stat-label" data-i18n="landing.stat_articles">Articles Improved</div>
+      </div>
+    </div>
+    <div class="stat-card glass-panel">
+      <div class="panel-content">
+        <div class="stat-value" style="color: var(--electric-blue);">{{ stats.total_views_display }}</div>
+        <div class="stat-label" data-i18n="landing.stat_views">Pageviews Generated</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mission -->
+<section class="mission-section">
+  <div class="glass-panel">
+    <div class="panel-header">
+      <span data-i18n="landing.mission_title">Our Mission</span>
+      <span class="iridescent-dot"></span>
+    </div>
+    <div class="panel-content">
+      <p class="mission-text" data-i18n="landing.mission_text">Wikipedia gets 15 billion page views a month, but Latino, BIPOC, and reproductive justice stories are still underrepresented. ClanDi helps close those gaps by giving communities the tools, training, and support to shape what millions read every day.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features-section">
+  <h2 class="section-title" data-i18n="landing.features_title">What You Can Do</h2>
+  <div class="features-grid">
+    <div class="feature-card glass-panel">
+      <div class="panel-content">
+        <div class="feature-icon">&#x1F393;</div>
+        <h3 data-i18n="landing.feature_learn">Learn</h3>
+        <p data-i18n="landing.feature_learn_desc">Step-by-step modules walk you through Wikipedia editing — no experience required.</p>
+      </div>
+    </div>
+    <div class="feature-card glass-panel">
+      <div class="panel-content">
+        <div class="feature-icon">&#x1F50D;</div>
+        <h3 data-i18n="landing.feature_find">Find Gaps</h3>
+        <p data-i18n="landing.feature_find_desc">Discover what's missing or outdated so your edits make the biggest impact.</p>
+      </div>
+    </div>
+    <div class="feature-card glass-panel">
+      <div class="panel-content">
+        <div class="feature-icon">&#x1F4CA;</div>
+        <h3 data-i18n="landing.feature_track">Track Impact</h3>
+        <p data-i18n="landing.feature_track_desc">See your contributions, pageviews, and progress in real time.</p>
+      </div>
+    </div>
+    <div class="feature-card glass-panel">
+      <div class="panel-content">
+        <div class="feature-icon">&#x1F331;</div>
+        <h3 data-i18n="landing.feature_grow">Grow</h3>
+        <p data-i18n="landing.feature_grow_desc">Earn badges, build skills, and level up from newcomer to mentor.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
