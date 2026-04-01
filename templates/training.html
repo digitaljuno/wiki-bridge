@@ -117,9 +117,50 @@
       </div>
       {% endif %}
 
+      <!-- Quiz Section -->
+      {% if mod.quiz %}
+      <div class="module-quiz" id="quiz-{{ mod.number }}">
+        <div class="quiz-header">
+          <h4>Knowledge Check</h4>
+          <p class="quiz-intro">Answer all questions correctly to complete this module.</p>
+        </div>
+
+        {% for q in mod.quiz %}
+        {% set qi = loop.index0 %}
+        {% set qnum = loop.index %}
+        <div class="quiz-question" id="q-{{ mod.number }}-{{ qi }}">
+          <p class="question-text">{{ qnum }}. {{ q.question }}</p>
+          <div class="quiz-options">
+            {% for opt in q.options %}
+            <label class="quiz-option" data-module="{{ mod.number }}" data-question="{{ qi }}" data-choice="{{ loop.index0 }}">
+              <input type="radio" name="mod{{ mod.number }}_q{{ qi }}" value="{{ loop.index0 }}">
+              <span class="option-marker"></span>
+              <span class="option-text">{{ opt }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          <div class="question-feedback" id="feedback-{{ mod.number }}-{{ qi }}"></div>
+        </div>
+        {% endfor %}
+
+        <div class="quiz-result" id="quiz-result-{{ mod.number }}"></div>
+      </div>
+      {% endif %}
+
       {% if user and mod.number not in completed and mod.number <= next_module %}
       <div class="module-actions">
-        <button class="btn" onclick="completeModule({{ mod.number }})" data-i18n="training.mark_complete">Mark as Complete</button>
+        <button class="btn" id="complete-btn-{{ mod.number }}" onclick="submitQuiz({{ mod.number }})">
+          {% if mod.quiz %}
+          Submit Answers
+          {% else %}
+          Mark as Complete
+          {% endif %}
+        </button>
+        <p class="module-action-hint" id="hint-{{ mod.number }}"></p>
+      </div>
+      {% elif mod.number in completed %}
+      <div class="module-actions">
+        <p style="color: var(--found); font-weight: 600;">&#x2713; Module completed</p>
       </div>
       {% elif not user %}
       <div class="module-actions">
@@ -148,24 +189,106 @@
     }
   }
 
-  async function completeModule(num) {
+  // Handle option selection visual feedback
+  document.querySelectorAll('.quiz-option').forEach(label => {
+    label.addEventListener('click', () => {
+      // Clear selection styling for this question
+      const parent = label.closest('.quiz-options');
+      parent.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
+      label.classList.add('selected');
+      // Clear any previous wrong/correct state for this question
+      parent.querySelectorAll('.quiz-option').forEach(opt => {
+        opt.classList.remove('correct', 'wrong');
+      });
+      const modNum = label.dataset.module;
+      const qNum = label.dataset.question;
+      const feedback = document.getElementById(`feedback-${modNum}-${qNum}`);
+      if (feedback) feedback.textContent = '';
+    });
+  });
+
+  async function submitQuiz(moduleNum) {
+    const btn = document.getElementById('complete-btn-' + moduleNum);
+    const hint = document.getElementById('hint-' + moduleNum);
+    const quizContainer = document.getElementById('quiz-' + moduleNum);
+
+    // Gather answers
+    const answers = [];
+    if (quizContainer) {
+      const questions = quizContainer.querySelectorAll('.quiz-question');
+      for (let i = 0; i < questions.length; i++) {
+        const selected = quizContainer.querySelector(`input[name="mod${moduleNum}_q${i}"]:checked`);
+        if (!selected) {
+          hint.textContent = 'Please answer all questions before submitting.';
+          hint.style.color = 'var(--gap)';
+          return;
+        }
+        answers.push(parseInt(selected.value));
+      }
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Checking...';
+    hint.textContent = '';
+
     try {
-      const resp = await fetch(`/api/training/complete/${num}`, { method: 'POST' });
+      const resp = await fetch(`/api/training/complete/${moduleNum}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers }),
+      });
       const data = await resp.json();
+
       if (data.success) {
-        window.location.reload();
+        // Show success state
+        btn.textContent = 'Passed!';
+        btn.style.background = 'linear-gradient(135deg, var(--found), #00E5FF)';
+        hint.textContent = 'Module completed! Reloading...';
+        hint.style.color = 'var(--found)';
+
+        // Mark correct answers green
+        if (quizContainer) {
+          quizContainer.querySelectorAll('.quiz-option.selected').forEach(opt => {
+            opt.classList.add('correct');
+          });
+        }
+
+        setTimeout(() => window.location.reload(), 1200);
       } else {
-        alert(data.error || 'Could not mark module as complete');
+        btn.disabled = false;
+        btn.textContent = 'Try Again';
+
+        // Highlight wrong answers
+        if (data.wrong && quizContainer) {
+          data.wrong.forEach(qNum => {
+            const qIndex = qNum - 1;
+            const selected = quizContainer.querySelector(
+              `.quiz-option[data-module="${moduleNum}"][data-question="${qIndex}"].selected`
+            );
+            if (selected) selected.classList.add('wrong');
+
+            const feedback = document.getElementById(`feedback-${moduleNum}-${qIndex}`);
+            if (feedback) {
+              feedback.textContent = 'Review the lesson material for this answer.';
+              feedback.style.color = 'var(--gap)';
+            }
+          });
+        }
+
+        hint.textContent = data.error || 'Some answers were incorrect. Try again!';
+        hint.style.color = 'var(--gap)';
       }
     } catch (e) {
-      alert('Error: ' + e.message);
+      btn.disabled = false;
+      btn.textContent = 'Submit Answers';
+      hint.textContent = 'Error: ' + e.message;
+      hint.style.color = 'var(--gap)';
     }
   }
 
   // Auto-open the next available module
   {% if next_module and next_module not in completed %}
   document.addEventListener('DOMContentLoaded', () => {
-    // Small delay so i18n loads first
     setTimeout(() => toggleModule({{ next_module }}), 300);
   });
   {% endif %}

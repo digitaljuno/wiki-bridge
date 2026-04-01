@@ -100,7 +100,7 @@ def _compute_priority(r: dict) -> int:
     return score
 
 
-# Training module content
+# Training module content with quizzes
 TRAINING_MODULES = [
     {
         "number": 1,
@@ -125,6 +125,33 @@ TRAINING_MODULES = [
         "videos": [
             {"title": "What is Wikipedia? (Wikimedia Foundation)", "url": "https://www.youtube.com/watch?v=xQ4ba28-oGs"},
         ],
+        "quiz": [
+            {
+                "question": "How many page views does Wikipedia get per month?",
+                "options": ["1 billion", "5 billion", "15 billion", "50 billion"],
+                "correct": 2,
+            },
+            {
+                "question": "Which of these is one of Wikipedia's 5 Pillars?",
+                "options": [
+                    "Only experts can edit",
+                    "Neutral Point of View (NPOV)",
+                    "English is the primary language",
+                    "Editors must use their real names",
+                ],
+                "correct": 1,
+            },
+            {
+                "question": "Why is editing Wikipedia important for Latino communities?",
+                "options": [
+                    "It pays well",
+                    "It's required by law",
+                    "Underrepresented stories affect real-world perceptions",
+                    "Wikipedia only covers mainstream topics",
+                ],
+                "correct": 2,
+            },
+        ],
     },
     {
         "number": 2,
@@ -147,6 +174,28 @@ TRAINING_MODULES = [
         <p>Create or update your user page. Add the WikiLatinos userbox and list 2-3 topics you want to work on.</p>
         """,
         "videos": [],
+        "quiz": [
+            {
+                "question": "What is a user page on Wikipedia?",
+                "options": [
+                    "A page only admins can see",
+                    "Your personal space to introduce yourself and list interests",
+                    "A page that tracks your errors",
+                    "A messaging system between editors",
+                ],
+                "correct": 1,
+            },
+            {
+                "question": "Which editor is best for beginners?",
+                "options": [
+                    "Source editor",
+                    "Command-line editor",
+                    "Visual editor",
+                    "HTML editor",
+                ],
+                "correct": 2,
+            },
+        ],
     },
     {
         "number": 3,
@@ -174,6 +223,38 @@ TRAINING_MODULES = [
         <p>Go to your sandbox and write a 2-3 paragraph draft about a topic you care about. Include at least one heading, one internal link, and one reference.</p>
         """,
         "videos": [],
+        "quiz": [
+            {
+                "question": "What is the correct wikitext for making text bold?",
+                "options": [
+                    "<b>bold</b>",
+                    "**bold**",
+                    "'''bold'''",
+                    "__bold__",
+                ],
+                "correct": 2,
+            },
+            {
+                "question": "What is the sandbox used for?",
+                "options": [
+                    "Publishing articles directly",
+                    "Messaging other editors",
+                    "Practicing editing without affecting live articles",
+                    "Reporting vandalism",
+                ],
+                "correct": 2,
+            },
+            {
+                "question": "How do you create an internal link to another Wikipedia article?",
+                "options": [
+                    "[Article Name]",
+                    "[[Article Name]]",
+                    "<link>Article Name</link>",
+                    "(Article Name)",
+                ],
+                "correct": 1,
+            },
+        ],
     },
     {
         "number": 4,
@@ -196,6 +277,38 @@ TRAINING_MODULES = [
         <p>Find 3 reliable sources for the topic you drafted in your sandbox. Add proper citations using the reference format.</p>
         """,
         "videos": [],
+        "quiz": [
+            {
+                "question": "Which of these is NOT a reliable source for Wikipedia?",
+                "options": [
+                    "The New York Times",
+                    "A peer-reviewed journal article",
+                    "A personal blog post",
+                    "A government census report",
+                ],
+                "correct": 2,
+            },
+            {
+                "question": "What Wikipedia principle requires every claim to be backed by sources?",
+                "options": [
+                    "Notability",
+                    "Verifiability",
+                    "Consensus",
+                    "Neutrality",
+                ],
+                "correct": 1,
+            },
+            {
+                "question": "Which database is good for finding sources on Latino history?",
+                "options": [
+                    "Reddit",
+                    "Wikipedia itself",
+                    "JSTOR and Google Scholar",
+                    "Twitter/X",
+                ],
+                "correct": 2,
+            },
+        ],
     },
     {
         "number": 5,
@@ -217,6 +330,28 @@ TRAINING_MODULES = [
         <p>Make your first live edit! Use WikiBridge to find a gap or stub, then improve it. Remember to add sources and write a clear edit summary.</p>
         """,
         "videos": [],
+        "quiz": [
+            {
+                "question": "What should you include with every edit you make?",
+                "options": [
+                    "Your real name",
+                    "A clear edit summary explaining what you changed",
+                    "A link to your social media",
+                    "An apology for editing",
+                ],
+                "correct": 1,
+            },
+            {
+                "question": "If another editor reverts your change, what should you do?",
+                "options": [
+                    "Revert their revert immediately",
+                    "Give up editing forever",
+                    "Check the reason and discuss on the Talk page",
+                    "Report them to Wikipedia admins",
+                ],
+                "correct": 2,
+            },
+        ],
     },
     {
         "number": 6,
@@ -245,6 +380,38 @@ TRAINING_MODULES = [
         <p>Use WikiBridge to find a high-priority article missing in Spanish (or English). Start translating it using the Content Translation tool, or expand an existing stub with properly sourced content.</p>
         """,
         "videos": [],
+        "quiz": [
+            {
+                "question": "When using the Content Translation tool, what should you do with the machine translation?",
+                "options": [
+                    "Publish it directly — it's good enough",
+                    "Review and improve every paragraph before publishing",
+                    "Delete it and start from scratch",
+                    "Only fix spelling errors",
+                ],
+                "correct": 1,
+            },
+            {
+                "question": "What Wikipedia tool helps you translate articles between languages?",
+                "options": [
+                    "Google Translate",
+                    "Special:ContentTranslation",
+                    "WikiBridge",
+                    "The Visual Editor",
+                ],
+                "correct": 1,
+            },
+            {
+                "question": "Which of these is a way to grow as a Wikipedia community leader?",
+                "options": [
+                    "Only edit articles, never interact with others",
+                    "Organize edit-a-thons and mentor new editors",
+                    "Delete articles you disagree with",
+                    "Avoid WikiProject discussions",
+                ],
+                "correct": 1,
+            },
+        ],
     },
 ]
 
@@ -480,12 +647,38 @@ async def api_complete_module(request: Request, module_number: int):
     if module_number > 1 and (module_number - 1) not in completed:
         return {"success": False, "error": "Complete previous modules first"}
 
+    if module_number in completed:
+        return {"success": True, "already_completed": True}
+
+    # Validate quiz answers
+    body = await request.json()
+    answers = body.get("answers", [])
+
+    module_info = next((m for m in TRAINING_MODULES if m["number"] == module_number), None)
+    if not module_info:
+        return {"success": False, "error": "Module not found"}
+
+    quiz = module_info.get("quiz", [])
+    if quiz:
+        if len(answers) != len(quiz):
+            return {"success": False, "error": "Please answer all quiz questions"}
+
+        wrong = []
+        for i, q in enumerate(quiz):
+            if i >= len(answers) or answers[i] != q["correct"]:
+                wrong.append(i + 1)
+
+        if wrong:
+            return {
+                "success": False,
+                "error": f"Incorrect answers on question(s) {', '.join(str(w) for w in wrong)}. Review the material and try again.",
+                "wrong": wrong,
+            }
+
     newly_completed = db.complete_module(user["id"], module_number)
     if newly_completed:
         db.record_weekly_action(user["id"])
 
-        # Check for badges
-        module_info = next((m for m in TRAINING_MODULES if m["number"] == module_number), None)
         if module_info:
             await discord_webhook.notify_training_complete(
                 user["display_name"], module_info["title"]
