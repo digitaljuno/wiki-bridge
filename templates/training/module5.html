@@ -1,0 +1,305 @@
+{% extends "training/_base_module.html" %}
+
+{% block module_styles %}
+<style>
+  /* Bias pattern cards */
+  .bias-grid { grid-template-columns: 1fr; }
+  .bias-card-name { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  .bias-card-desc { font-size: 14px; color: var(--mid); line-height: 1.6; }
+  .bias-card a { color: var(--accent); }
+
+  /* WikiProject cards */
+  .wp-grid { grid-template-columns: 1fr; }
+  .wp-card { display: flex; align-items: flex-start; gap: 16px; background: white; border: 1px solid var(--light); border-radius: 8px; padding: 18px 20px; }
+  .wp-card.primary { border-color: var(--accent); border-width: 2px; }
+  .wp-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 2px; }
+  .wp-card-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .wp-card-desc { font-size: 14px; color: var(--mid); line-height: 1.5; }
+
+  .section a { color: var(--accent); }
+</style>
+{% endblock %}
+
+{% block module_content %}
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-label"><span data-i18n="training.module">Module</span> 5</div>
+  <h1>Working with the Wikipedia Community</h1>
+  <div class="hero-objectives">
+    You will learn how to navigate Wikipedia's social side: talk pages, WikiProjects, systemic bias, and how to build alliances with other editors. By the end, you will know how decisions get made and how to participate in them.
+  </div>
+</div>
+
+<!-- ===== SECTION 1 ===== -->
+<div class="section visible" data-section="1">
+  <div class="section-number">Section 1 of 6</div>
+  <h2>Talk pages, the real power center</h2>
+
+  <p>Most people think Wikipedia's power lives in the articles. It actually lives in the talk pages. Every article, every user, and every WikiProject has one. This is where editors discuss what an article should say, debate disputed content, and reach consensus.</p>
+
+  <p><strong>Article talk pages</strong> are where you discuss changes to a specific article. On well-watched articles, making a big change without discussing it first usually means an immediate revert.</p>
+
+  <p><strong>User talk pages</strong> are how editors communicate directly. If someone reverts your edit, you might leave a message on their talk page asking why. Other editors can read the conversation.</p>
+
+  <p><strong>WikiProject talk pages</strong> are where groups of editors plan their work. WP:LATINOS members discuss which articles need attention, propose new articles, and coordinate efforts.</p>
+
+  <p><strong>How to write a good talk page comment:</strong></p>
+
+  <p>Be specific. "This article needs improvement" is not helpful. "The Early career section does not mention their work with X organization, which is covered in this NYT article [link]. I'd like to add a paragraph" gives other editors something concrete to respond to.</p>
+
+  <p>Be brief. Sign your comments with four tildes (~~~~) so your username and timestamp appear. Start new topics using the "New section" button.</p>
+
+  <div class="check-wrap" data-check="1" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">You want to add a significant new section to an actively watched article. What should you do first?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Add it directly since Wikipedia encourages bold editing</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Propose it on the talk page with your sources and reasoning</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Email an administrator for approval</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Wait a week to make sure no one else is editing</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(1)">Check answer</button>
+    <div class="check-feedback right">Propose it on the talk page. Bold editing works for small fixes, but on watched articles, proposing significant changes first avoids unnecessary reverts and shows you understand how collaboration works.</div>
+    <div class="check-feedback wrong">Not quite. On actively watched articles, proposing significant additions on the talk page first is the smart move.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(2)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 2 ===== -->
+<div class="section-divider" id="div-2"><hr></div>
+<div class="section locked" data-section="2">
+  <div class="section-number">Section 2 of 6</div>
+  <h2>Systemic bias on Wikipedia</h2>
+
+  <p>The majority of Wikipedia editors are white men from English-speaking countries. This is not a conspiracy. It is a structural reality that shapes what gets covered, how it gets framed, and what gets left out.</p>
+
+  <div class="bias-grid">
+    <div class="bias-card">
+      <div class="bias-card-name">Higher notability bars for marginalized subjects</div>
+      <div class="bias-card-desc">An article about a Latino activist with regional news coverage might get nominated for deletion. An article about a minor European football player with similar coverage survives. The standard is supposed to be the same. Who shows up to argue the case makes the difference.</div>
+    </div>
+    <div class="bias-card">
+      <div class="bias-card-name">Framing that centers dominant perspectives</div>
+      <div class="bias-card-desc">Immigration articles often default to enforcement framing. Reproductive rights articles center political debate over healthcare access. Neither framing is wrong, but the absence of other perspectives is a gap.</div>
+    </div>
+    <div class="bias-card">
+      <div class="bias-card-name">Undervaluing Spanish-language sources</div>
+      <div class="bias-card-desc">Editors unfamiliar with Spanish media sometimes challenge Univision, Telemundo, or Latin American newspapers. These outlets meet Wikipedia's standards. Point to the <a href="https://en.wikipedia.org/wiki/Wikipedia:Reliable_sources/Perennial_sources" target="_blank" rel="noopener">Perennial sources list</a> if challenged.</div>
+    </div>
+    <div class="bias-card">
+      <div class="bias-card-name">Gaps in coverage</div>
+      <div class="bias-card-desc">Entire topic areas that matter to marginalized communities simply do not have articles, or have articles that are stubs. Not because Wikipedia prohibits them, but because nobody with the knowledge and skills has written them yet.</div>
+    </div>
+  </div>
+
+  <p>Understanding these patterns is practical, not just philosophical. When you encounter resistance to content about underrepresented communities, it helps to know you are pushing against a structural pattern. Your response is always the same: better sources, stronger citations, calm discussion.</p>
+
+  <div class="practice-block" data-practice="1">
+    <div class="practice-label">Practice</div>
+    <div class="practice-title">Spot the bias</div>
+    <div class="practice-desc">Pick one of these exercises. Write down what you notice. You will use these observations in Module 6.</div>
+    <div class="practice-option"><strong>Option 1:</strong> Find a Wikipedia article about a Latino figure or cultural tradition. Read it critically. What perspectives are centered? What is missing? Check the talk page for past discussions.</div>
+    <div class="practice-option"><strong>Option 2:</strong> Search for a topic you know well on both English and Spanish Wikipedia. Compare the two. What does the Spanish version include that the English does not?</div>
+    <div class="task-list" style="margin-top: 16px;">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Completed one of the exercises above</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Noted what was missing or how the framing could be improved</div>
+      </div>
+    </div>
+    <div class="practice-complete-msg">Good. Seeing the patterns is the first step to changing them.</div>
+  </div>
+
+  <div class="check-wrap" data-check="2" data-correct="2">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">You cite a Univision article and another editor challenges it as unreliable. How should you respond?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Remove the citation to avoid conflict</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Replace it with an English-language source</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Point to the Perennial sources list and the principle that reliable sources in any language are accepted</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Report the editor for bias</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(2)">Check answer</button>
+    <div class="check-feedback right">Point to the Perennial sources list. Wikipedia accepts reliable sources in any language. You do not need to replace a valid Spanish source to satisfy another editor's unfamiliarity with the outlet.</div>
+    <div class="check-feedback wrong">Not quite. Removing a valid source or replacing it with an English one concedes a point that does not need conceding. Wikipedia accepts reliable sources in any language.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(3)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3 ===== -->
+<div class="section-divider" id="div-3"><hr></div>
+<div class="section locked" data-section="3">
+  <div class="section-number">Section 3 of 6</div>
+  <h2>WikiProjects and finding your people</h2>
+
+  <p>Editing alone is fine. Editing as part of a group is more effective and more sustainable.</p>
+
+  <p>WikiProjects are organized groups of editors who coordinate around a topic area. They maintain article improvement lists, set quality standards, and back each other up in disputes.</p>
+
+  <div class="wp-grid">
+    <div class="wp-card primary">
+      <div>
+        <div class="wp-badge">Start here</div>
+        <div class="wp-card-name">WP:LATINOS</div>
+        <div class="wp-card-desc">WikiProject Latino and Hispanic Heritage. The first bilingual WikiProject for Latino culture on Wikipedia. Members coordinate on improvements, flag gaps, and support each other in disputes.</div>
+      </div>
+    </div>
+    <div class="wp-card">
+      <div>
+        <div class="wp-card-name">Women in Red</div>
+        <div class="wp-card-desc">Focused on creating articles about women who do not yet have Wikipedia pages.</div>
+      </div>
+    </div>
+    <div class="wp-card">
+      <div>
+        <div class="wp-card-name">WikiProject Medicine</div>
+        <div class="wp-card-desc">Coordinates on health-related articles. Useful for reproductive health editing.</div>
+      </div>
+    </div>
+    <div class="wp-card">
+      <div>
+        <div class="wp-card-name">WikiProject Human Rights</div>
+        <div class="wp-card-desc">Covers civil and human rights articles worldwide.</div>
+      </div>
+    </div>
+  </div>
+
+  <p><strong>How to join:</strong> Go to the project page and add your username to the members list. No application, no approval. Most projects have a talk page where you can introduce yourself.</p>
+
+  <p><strong>Why it matters:</strong> When your edit gets challenged, having WikiProject members who can weigh in on the talk page makes a real difference. A single new editor arguing for content has less weight than three project members pointing to sources and supporting the addition. This is not gaming the system. It is participating in the community structure that already exists.</p>
+
+  <div class="check-wrap" data-check="3" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">What is the practical benefit of joining a WikiProject?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Your edits get automatic protection from being reverted</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>A community that coordinates on articles, supports you in disputes, and helps you find work</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Special editing privileges on related articles</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>It is required before editing articles in that topic area</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(3)">Check answer</button>
+    <div class="check-feedback right">Community support. WikiProjects do not grant special privileges or protection, but the coordination, shared article lists, and backing in disputes make a real practical difference.</div>
+    <div class="check-feedback wrong">Not quite. WikiProjects provide community, not special privileges. The value is in coordination and mutual support.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(4)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4 ===== -->
+<div class="section-divider" id="div-4"><hr></div>
+<div class="section locked" data-section="4">
+  <div class="section-number">Section 4 of 6</div>
+  <h2>Handling conflict well</h2>
+
+  <div class="warning-box">
+    <strong>The 3-revert rule (3RR):</strong> Revert the same content more than three times in 24 hours on the same article and you can be blocked. If you are approaching three reverts, stop and move to the talk page. Always.
+  </div>
+
+  <p><strong>When to walk away temporarily.</strong> If a talk page discussion is going in circles, step back for a day or two. Gather additional sources, consult your WikiProject, come back with a stronger case. Wikipedia moves slowly. The article will still be there.</p>
+
+  <p><strong>When someone is acting in bad faith.</strong> Signs: reverting without explanation, personal attacks, following your edits across articles, refusing to engage on the talk page. Document everything (save diffs, screenshots). Do not respond to attacks. File at WP:ANI with evidence. Reach out to WP:LATINOS or ClanDi Discord for advice before escalating.</p>
+
+  <div class="scenario-block">
+    <div class="scenario-label">What productive disagreement looks like</div>
+    <div class="scenario-text">
+      <strong>Editor A</strong> adds content. <strong>Editor B</strong> reverts it.<br><br>
+      <strong>A on the talk page:</strong> "I added information about X, sourced to [this article]. The article currently does not cover Y. What is the concern?"<br><br>
+      <strong>B responds:</strong> "The source is a primary source. Can you find secondary coverage?"<br><br>
+      <strong>A</strong> finds a secondary source and updates the content. Both editors agree.<br><br>
+      Slower than just editing. Better result.
+    </div>
+  </div>
+
+  <div class="check-wrap" data-check="4" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">You have reverted another editor twice in the past few hours. They reverted your work again. What should you do?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Revert one more time since you are allowed up to three</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Stop editing the article and move to the talk page immediately</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Create a new account to keep editing</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Remove the entire section to end the conflict</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(4)">Check answer</button>
+    <div class="check-feedback right">Stop and go to the talk page. Approaching the 3-revert limit is a signal the dispute needs discussion, not more reverting. Using the third revert as a weapon makes things worse.</div>
+    <div class="check-feedback wrong">Not quite. Even though a third revert is technically allowed, approaching the limit means the dispute belongs on the talk page.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(5)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 5 ===== -->
+<div class="section-divider" id="div-5"><hr></div>
+<div class="section locked" data-section="5">
+  <div class="section-number">Section 5 of 6</div>
+  <h2>Building a sustainable practice</h2>
+
+  <p>The question now is whether this becomes a one-time experience or an ongoing practice. Here is what keeps editors going long-term:</p>
+
+  <p><strong>Connection to a community.</strong> The editors who stick around almost always have a group: a WikiProject, a Discord, an editing cohort, a few trusted collaborators. Solo editing burns out faster.</p>
+
+  <p><strong>Seeing your impact.</strong> Your newcomer homepage tracks edits and page views. ClanDi's dashboard does this too. Watching the numbers grow is motivating in a way that is hard to replicate with abstract goals.</p>
+
+  <p><strong>Having a focus area.</strong> Editors who try to cover everything tend to drift. Editors who focus on reproductive rights, Puerto Rican history, or immigration policy build expertise that makes each edit faster and better sourced.</p>
+
+  <p><strong>Regular habits beat bursts.</strong> One edit a week for six months is more valuable than twenty edits in one weekend followed by nothing. Wikipedia rewards consistency in both credibility algorithms and community relationships.</p>
+
+  <div class="practice-block" data-practice="2">
+    <div class="practice-label">Practice</div>
+    <div class="practice-title">Set your editing practice</div>
+    <div class="practice-desc">Before moving to the final module, put this module's lessons into action.</div>
+    <div class="task-list">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Joined WP:LATINOS (or another relevant WikiProject)</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Left a comment on an article talk page</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Decided on a focus area for your editing</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Set a weekly editing goal (even if it is small)</div>
+      </div>
+    </div>
+    <div class="practice-complete-msg">You have the community, the focus, and the habit. That is what turns a training into a practice.</div>
+  </div>
+
+  <div class="continue-wrap show">
+    <button class="continue-btn" onclick="unlockNext(6)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button>
+  </div>
+</div>
+
+<!-- ===== SECTION 6 ===== -->
+<div class="section-divider" id="div-6"><hr></div>
+<div class="section locked" data-section="6">
+  <div class="section-number">Section 6 of 6</div>
+  <h2>What comes next</h2>
+
+  <p>Module 6 is the final module. It covers creating new articles from scratch, translating content between English and Spanish, uploading images to Wikimedia Commons, and planning your long-term editing work.</p>
+
+  <p>Between now and then, put this module into practice. Leave a talk page comment. Join WP:LATINOS. Do the bias exercise. The social side of Wikipedia is a skill, and like any skill, it develops with use.</p>
+
+  <div style="margin-top: 24px;">
+    <button class="continue-btn" onclick="showCompletion()" style="background: var(--ink);">Complete Module 5 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></button>
+  </div>
+</div>
+
+<!-- Completion -->
+<div class="completion" id="completion">
+  <div class="completion-check">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+  </div>
+  <h2>Module 5 complete</h2>
+  <p>You understand the community. One module left: creating new articles, translation, and building your long-term practice.</p>
+  <a id="next-module-link" class="continue-btn" href="/training/module/6" style="background: var(--ink);">Start Module 6 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></a>
+</div>
+{% endblock %}
+
+{% block module_scripts %}
+<script src="/static/js/training/tasks.js"></script>
+{% endblock %}

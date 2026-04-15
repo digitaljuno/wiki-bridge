@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block title %}ClanDi — Wiki 101 Journey{% endblock %}
+
+{% block head %}
+<style>
+  .journey-wrap { max-width: 820px; margin: 0 auto; padding: 1rem; }
+
+  .journey-header { text-align: center; padding: 2.5rem 1rem 1.5rem; }
+  .journey-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .journey-header h1 { font-size: clamp(28px, 4.5vw, 40px); font-weight: 900; letter-spacing: -0.02em; margin-bottom: 10px; line-height: 1.1; }
+  .journey-header p { color: var(--text-secondary); font-size: 15px; max-width: 520px; margin: 0 auto; }
+
+  /* Stats bar */
+  .journey-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 0 2rem; }
+  @media (max-width: 560px) { .journey-stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat-tile { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 14px 16px; }
+  .stat-tile-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .stat-tile-value { font-size: 24px; font-weight: 900; letter-spacing: -0.02em; line-height: 1; }
+  .stat-tile-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+  /* Overall progress */
+  .journey-progress { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 2rem; }
+  .journey-progress-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .journey-progress-title { font-weight: 700; font-size: 14px; }
+  .journey-progress-count { font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .journey-track { height: 8px; background: var(--gray-100); border-radius: 999px; overflow: hidden; }
+  .journey-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--green-light)); border-radius: 999px; transition: width 0.6s cubic-bezier(0.22,1,0.36,1); }
+
+  /* Trail */
+  .trail { position: relative; padding-left: 36px; }
+  .trail::before { content: ""; position: absolute; left: 14px; top: 14px; bottom: 14px; width: 2px; background: var(--gray-200); border-radius: 2px; }
+  .trail-step { position: relative; margin-bottom: 14px; }
+  .trail-step:last-child { margin-bottom: 0; }
+
+  .trail-dot { position: absolute; left: -36px; top: 18px; width: 30px; height: 30px; border-radius: 50%; background: var(--white); border: 2px solid var(--gray-300); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: var(--text-muted); z-index: 1; transition: all 0.2s; }
+  .trail-step.completed .trail-dot { background: var(--green); border-color: var(--green); color: var(--white); }
+  .trail-step.active .trail-dot { background: var(--white); border-color: var(--green); color: var(--green); box-shadow: 0 0 0 4px rgba(0,159,87,0.15); }
+  .trail-step.locked .trail-dot { background: var(--gray-100); }
+
+  .trail-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 18px 20px; transition: border-color 0.2s, box-shadow 0.2s; }
+  .trail-step.active .trail-card { border-color: var(--green); box-shadow: 0 2px 12px rgba(0,159,87,0.08); }
+  .trail-step.locked .trail-card { opacity: 0.6; }
+
+  .trail-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+  .trail-card-title { font-weight: 700; font-size: 17px; line-height: 1.3; letter-spacing: -0.01em; }
+  .trail-card-status { flex-shrink: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; }
+  .trail-step.completed .trail-card-status { background: var(--tint-green); color: var(--green-dark); }
+  .trail-step.active .trail-card-status { background: var(--tint-pink); color: var(--pink-dark); }
+  .trail-step.locked .trail-card-status { background: var(--gray-100); color: var(--text-muted); }
+
+  .trail-card-meta { display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
+  .trail-card-meta-item { display: inline-flex; align-items: center; gap: 5px; }
+  .trail-card-meta-item strong { color: var(--text-primary); font-weight: 700; }
+
+  .trail-inner-track { height: 4px; background: var(--gray-100); border-radius: 999px; overflow: hidden; margin-bottom: 12px; }
+  .trail-inner-fill { height: 100%; background: var(--green); border-radius: 999px; transition: width 0.4s ease; }
+  .trail-step.active .trail-inner-fill { background: var(--green); }
+  .trail-step.locked .trail-inner-fill { background: var(--gray-300); }
+
+  .trail-card-cta { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; background: var(--black); color: var(--white); border-radius: 999px; font-size: 13px; font-weight: 600; text-decoration: none; transition: background 0.2s; }
+  .trail-card-cta:hover { background: var(--gray-600); }
+  .trail-card-cta.primary { background: var(--green); }
+  .trail-card-cta.primary:hover { background: var(--green-dark); }
+  .trail-card-cta-locked { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
+
+  /* Graduation */
+  .graduation-cta { margin-top: 2rem; padding: 28px; text-align: center; background: linear-gradient(135deg, var(--tint-green), var(--tint-pink)); border-radius: var(--radius-xl); }
+  .graduation-cta-icon { font-size: 32px; margin-bottom: 8px; }
+  .graduation-cta h3 { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
+  .graduation-cta p { color: var(--text-secondary); font-size: 14px; margin-bottom: 16px; }
+  .graduation-cta .trail-card-cta { background: var(--pink); }
+  .graduation-cta .trail-card-cta:hover { background: var(--pink-dark); }
+
+  /* Login prompt */
+  .login-prompt { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 20px 24px; text-align: center; margin-bottom: 2rem; }
+  .login-prompt p { color: var(--text-secondary); margin-bottom: 12px; font-size: 14px; }
+  .login-prompt .btn { display: inline-block; padding: 10px 20px; background: var(--black); color: var(--white); border-radius: 999px; font-weight: 600; font-size: 14px; text-decoration: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="journey-wrap">
+
+  <!-- Header -->
+  <div class="journey-header">
+    <div class="journey-eyebrow" data-i18n="journey.eyebrow">Wiki 101</div>
+    <h1 data-i18n="journey.title">Your editing journey</h1>
+    <p data-i18n="journey.subtitle">Six modules. Build the full toolkit for editing Wikipedia with purpose.</p>
+  </div>
+
+  {% if not user %}
+  <div class="login-prompt">
+    <p data-i18n="journey.login_prompt">Log in to track your progress and earn your graduation badge.</p>
+    <a href="/auth/login" class="btn" data-i18n="nav.login">Log In with Wikipedia</a>
+  </div>
+  {% endif %}
+
+  <!-- Stats tiles -->
+  <div class="journey-stats">
+    <div class="stat-tile">
+      <div class="stat-tile-label" data-i18n="journey.stat_modules">Modules</div>
+      <div class="stat-tile-value">{{ state.stats.modules_completed }}<span style="color: var(--text-muted); font-size: 16px;">/6</span></div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-label" data-i18n="journey.stat_checks">Checks passed</div>
+      <div class="stat-tile-value">{{ state.stats.total_checks_passed }}</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-label" data-i18n="journey.stat_tasks">Tasks done</div>
+      <div class="stat-tile-value">{{ state.stats.total_tasks_completed }}</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-label" data-i18n="journey.stat_streak">Active days</div>
+      <div class="stat-tile-value">{{ state.stats.streak_days }}</div>
+    </div>
+  </div>
+
+  <!-- Overall progress -->
+  <div class="journey-progress">
+    <div class="journey-progress-head">
+      <div class="journey-progress-title" data-i18n="journey.overall_progress">Overall progress</div>
+      <div class="journey-progress-count">{{ state.stats.modules_completed }} / 6</div>
+    </div>
+    <div class="journey-track">
+      <div class="journey-fill" style="width: {{ (state.stats.modules_completed / 6 * 100)|int }}%;"></div>
+    </div>
+  </div>
+
+  <!-- Trail -->
+  <div class="trail">
+    {% for m in state.modules %}
+      {% set is_completed = m.completed %}
+      {% set is_active = (not is_completed) and (m.module_id == active_module_id) %}
+      {% set is_locked = (not is_completed) and (not is_active) %}
+      {% set section_pct = (m.section_index / m.total_sections * 100)|int if m.total_sections else 0 %}
+
+      <div class="trail-step {% if is_completed %}completed{% elif is_active %}active{% else %}locked{% endif %}">
+        <div class="trail-dot">
+          {% if is_completed %}&#10003;{% else %}{{ m.module_id }}{% endif %}
+        </div>
+        <div class="trail-card">
+          <div class="trail-card-head">
+            <div class="trail-card-title">{{ module_titles[m.module_id] }}</div>
+            <div class="trail-card-status">
+              {% if is_completed %}<span data-i18n="journey.status_done">Done</span>
+              {% elif is_active %}<span data-i18n="journey.status_current">Current</span>
+              {% else %}<span data-i18n="journey.status_locked">Locked</span>{% endif %}
+            </div>
+          </div>
+
+          <div class="trail-card-meta">
+            <div class="trail-card-meta-item"><span data-i18n="journey.section">Section</span> <strong>{{ m.section_index }}/{{ m.total_sections }}</strong></div>
+            {% if m.checks_total > 0 %}
+            <div class="trail-card-meta-item"><span data-i18n="journey.checks">Checks</span> <strong>{{ m.checks_passed }}/{{ m.checks_total }}</strong></div>
+            {% endif %}
+            {% if m.tasks_total > 0 %}
+            <div class="trail-card-meta-item"><span data-i18n="journey.tasks">Tasks</span> <strong>{{ m.tasks_completed }}/{{ m.tasks_total }}</strong></div>
+            {% endif %}
+          </div>
+
+          <div class="trail-inner-track">
+            <div class="trail-inner-fill" style="width: {% if is_completed %}100{% else %}{{ section_pct }}{% endif %}%;"></div>
+          </div>
+
+          {% if is_completed %}
+            <a href="/training/module/{{ m.module_id }}" class="trail-card-cta" data-i18n="journey.review">Review</a>
+          {% elif is_active %}
+            <a href="/training/module/{{ m.module_id }}" class="trail-card-cta primary">
+              {% if m.section_index > 1 %}<span data-i18n="journey.continue">Continue</span>{% else %}<span data-i18n="journey.start">Start</span>{% endif %}
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            </a>
+          {% else %}
+            <div class="trail-card-cta-locked">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              <span data-i18n="journey.finish_previous">Finish the previous module first</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Graduation -->
+  {% if state.stats.modules_completed == 6 %}
+  <div class="graduation-cta">
+    <div class="graduation-cta-icon">&#127891;</div>
+    <h3 data-i18n="journey.graduation_title">Wiki 101 complete</h3>
+    <p data-i18n="journey.graduation_sub">You have the full toolkit. Time to put it to work.</p>
+    <a href="/gaps" class="trail-card-cta" data-i18n="journey.graduation_cta">
+      Find a knowledge gap
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

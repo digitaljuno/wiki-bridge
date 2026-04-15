@@ -1,0 +1,335 @@
+{% extends "training/_base_module.html" %}
+
+{% block module_styles %}
+<style>
+  /* Edit type cards */
+  .edit-type { background: white; border: 1px solid var(--light); border-radius: 8px; padding: 18px 20px; margin-bottom: 10px; }
+  .edit-type-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .edit-type-desc { font-size: 14px; color: var(--mid); line-height: 1.55; }
+  .edit-type.recommended { border-color: var(--accent); border-width: 2px; }
+  .edit-type-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 4px; }
+
+  /* Source strategy grid */
+  .source-grid { grid-template-columns: 1fr; }
+  .source-card-topic { font-weight: 600; font-size: 15px; margin-bottom: 6px; color: var(--accent); }
+  .source-card-sources { font-size: 14px; color: var(--mid); line-height: 1.6; }
+
+  /* Article finder options */
+  .finder-grid { grid-template-columns: 1fr; }
+  .finder-card { display: flex; align-items: flex-start; gap: 16px; background: white; border: 1px solid var(--light); border-radius: 8px; padding: 18px 20px; }
+  .finder-num { font-family: var(--serif); font-weight: 700; font-size: 20px; color: var(--accent); flex-shrink: 0; }
+  .finder-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .finder-desc { font-size: 14px; color: var(--mid); line-height: 1.5; }
+</style>
+{% endblock %}
+
+{% block module_content %}
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-label"><span data-i18n="training.module">Module</span> 4</div>
+  <h1>Building Articles That Hold Power</h1>
+  <div class="hero-objectives">
+    You will learn how articles are structured, go deeper on sourcing strategy, and make your first edit to a live Wikipedia article. By the end of this module, you will have changed something on Wikipedia that other people can read.
+  </div>
+</div>
+
+<!-- ===== SECTION 1 ===== -->
+<div class="section visible" data-section="1">
+  <div class="section-number">Section 1 of 6</div>
+  <h2>How Wikipedia articles are structured</h2>
+
+  <p>Before you edit an article, you need to understand what you are looking at. Wikipedia articles follow a consistent structure, and knowing the parts helps you figure out where your work fits.</p>
+
+  <p><strong>The lead section</strong> comes first, before any headings. It summarizes the entire article in one to four paragraphs. On shorter articles the lead might be the whole thing. On longer articles it is an overview readers can scan before diving deeper.</p>
+
+  <p>Here is what matters about the lead: it gets the most traffic. Many readers never scroll past it. Improving the lead is high-impact work. But leads are watched closely, so your sourcing needs to be solid.</p>
+
+  <p><strong>Section headings</strong> organize the rest. Biographical articles commonly use "Early life," "Career," "Personal life." Policy articles might use "Background," "Provisions," "Implementation," "Reception." These are conventions, not strict rules.</p>
+
+  <p><strong>References</strong> live at the bottom. You built one of these in your sandbox already.</p>
+
+  <p><strong>Categories and infoboxes</strong> are metadata. Categories sort the article into groups (like "Category:Puerto Rican activists"). Infoboxes are the summary tables in the top-right corner showing key facts at a glance.</p>
+
+  <p><strong>A useful habit:</strong> Before editing any article, find a well-developed article on a similar topic. Study how it is organized. Use it as a structural model.</p>
+
+  <div class="check-wrap" data-check="1" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">Which part of a Wikipedia article gets the most reader traffic?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>The references section at the bottom</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>The lead section at the top, before any headings</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>The infobox in the top-right corner</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>The "See also" section with related links</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(1)">Check answer</button>
+    <div class="check-feedback right">The lead section. Many readers never scroll past it. High-impact place to contribute, but your sourcing needs to be especially strong because it gets more editorial attention.</div>
+    <div class="check-feedback wrong">Not quite. The lead section at the very top gets the most eyeballs. Many readers stop there.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(2)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 2 ===== -->
+<div class="section-divider" id="div-2"><hr></div>
+<div class="section locked" data-section="2">
+  <div class="section-number">Section 2 of 6</div>
+  <h2>Finding sources that hold up</h2>
+
+  <p>You practiced citations in Module 3. Now the question is where to look. Not all reliable sources are equally useful, and knowing where to search saves time.</p>
+
+  <div class="source-grid">
+    <div class="source-card">
+      <div class="source-card-topic">Current events and policy</div>
+      <div class="source-card-sources">AP News, Reuters, NYT, Washington Post, BBC, NPR. For Latino-specific coverage: Univision, Telemundo, El Pais, La Opinion, Latino USA. Local papers for local topics.</div>
+    </div>
+    <div class="source-card">
+      <div class="source-card-topic">Health and science</div>
+      <div class="source-card-sources">Peer-reviewed journals via PubMed and Google Scholar. Government agencies: CDC, WHO, NIH. Be cautious with advocacy orgs as primary sources for health claims, even ones you agree with.</div>
+    </div>
+    <div class="source-card">
+      <div class="source-card-topic">History and culture</div>
+      <div class="source-card-sources">Academic books and journal articles. Digitized newspaper archives for timelines. Oral history projects and university archives if published or reviewed in a form Wikipedia accepts.</div>
+    </div>
+    <div class="source-card">
+      <div class="source-card-topic">Biographical articles</div>
+      <div class="source-card-sources">Published interviews, news profiles, institutional records. A person's own website works for basic facts (birth date, bibliography) but not evaluative claims.</div>
+    </div>
+  </div>
+
+  <p><strong>Google Scholar is your best friend.</strong> Search there before regular Google. It surfaces academic sources that Wikipedia editors respect. Many papers are free, and abstracts often have enough for a citation.</p>
+
+  <p><strong>Check the article's existing references too.</strong> The publications already cited may have additional coverage you can use. This is also how you spot weak sources that need replacing.</p>
+
+  <div class="check-wrap" data-check="2" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">You want to add reproductive health policy information to an article. Which source strategy is strongest?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>A press release from an advocacy organization that supports the policy</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>A peer-reviewed article in a public health journal plus coverage from a major news outlet</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>A detailed blog post by a healthcare professional</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>A viral social media thread that cites multiple statistics</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(2)">Check answer</button>
+    <div class="check-feedback right">A peer-reviewed article plus news coverage. The combination of academic and journalistic sources gives the strongest foundation. Press releases, blogs, and social media do not meet reliability standards.</div>
+    <div class="check-feedback wrong">Not quite. Peer-reviewed research combined with major news coverage is the gold standard. Blogs, press releases, and social media are not reliable regardless of who wrote them.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(3)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3 ===== -->
+<div class="section-divider" id="div-3"><hr></div>
+<div class="section locked" data-section="3">
+  <div class="section-number">Section 3 of 6</div>
+  <h2>Types of edits (and where to start)</h2>
+
+  <p>Not all edits carry the same weight, and as a new editor, some are more strategic than others.</p>
+
+  <div class="edit-type recommended">
+    <div class="edit-type-badge">Best starting point</div>
+    <div class="edit-type-name">Adding citations to unsourced claims</div>
+    <div class="edit-type-desc">Wikipedia is full of [citation needed] tags. Finding a reliable source and adding the citation is useful, low-conflict, and builds your credibility. It also protects the content from deletion.</div>
+  </div>
+  <div class="edit-type">
+    <div class="edit-type-name">Expanding thin sections</div>
+    <div class="edit-type-desc">Many articles about underrepresented communities exist but are stubs. Adding a well-sourced paragraph to a thin section fills a real gap.</div>
+  </div>
+  <div class="edit-type">
+    <div class="edit-type-name">Correcting errors</div>
+    <div class="edit-type-desc">Outdated statistics, wrong dates, broken links, factual mistakes. Straightforward. Always cite your correction.</div>
+  </div>
+  <div class="edit-type">
+    <div class="edit-type-name">Improving the lead</div>
+    <div class="edit-type-desc">High impact but draws more attention. Make sure sources are airtight before touching a lead section.</div>
+  </div>
+  <div class="edit-type">
+    <div class="edit-type-name">Creating new content</div>
+    <div class="edit-type-desc">Writing new sections or paragraphs. The most ambitious type. Build up to this after smaller edits.</div>
+  </div>
+
+  <div class="warning-box">
+    <strong>What to avoid as a new editor:</strong> Do not start with heavily protected or contested articles (major political figures, active controversies, visible edit wars). These attract aggressive editors. Start with articles that have clear gaps and less traffic. Your edits will survive, you will build confidence, and your edit history earns credibility for bigger articles later.
+  </div>
+
+  <div class="check-wrap" data-check="3" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">You are ready for your first real Wikipedia edit. Which approach is most strategic?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Edit the lead of a high-traffic article about a major political figure</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Find a [citation needed] tag and add a reliable source</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Create a new article about a topic you know well</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Remove content you disagree with from a controversial article</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(3)">Check answer</button>
+    <div class="check-feedback right">Find a [citation needed] tag and add a reliable source. Low-conflict, useful, builds credibility. Start small, build up.</div>
+    <div class="check-feedback wrong">Not quite. For a first edit, finding an unsourced claim and adding a reliable citation is the safest and most strategic approach.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(4)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4 ===== -->
+<div class="section-divider" id="div-4"><hr></div>
+<div class="section locked" data-section="4">
+  <div class="section-number">Section 4 of 6</div>
+  <h2>Making your first real edit</h2>
+
+  <p>This is it. You have the skills. Now you need an article.</p>
+
+  <div class="finder-grid">
+    <div class="finder-card">
+      <div class="finder-num">1</div>
+      <div><div class="finder-title">Your watchlist</div><div class="finder-desc">Articles you saved in Module 3. Open one and look for gaps: missing citations, thin sections, outdated info.</div></div>
+    </div>
+    <div class="finder-card">
+      <div class="finder-num">2</div>
+      <div><div class="finder-title">ClanDi's Knowledge Gaps tool</div><div class="finder-desc">Pre-identified gaps in coverage areas ClanDi focuses on. Vetted for relevance.</div></div>
+    </div>
+    <div class="finder-card">
+      <div class="finder-num">3</div>
+      <div><div class="finder-title">Your newcomer homepage</div><div class="finder-desc">The one you enabled in Module 2. Suggests articles by difficulty and topic.</div></div>
+    </div>
+    <div class="finder-card">
+      <div class="finder-num">4</div>
+      <div><div class="finder-title">WikiProject pages</div><div class="finder-desc">WP:LATINOS and other WikiProjects maintain lists of articles needing improvement.</div></div>
+    </div>
+  </div>
+
+  <p>Once you have an article: read it fully before changing anything. Check the talk page for ongoing discussions. Check the edit history to see how active it is. Then identify <strong>one specific thing</strong> you can improve.</p>
+
+  <p>Start with one edit. Not five. One.</p>
+
+  <!-- THE BIG MILESTONE PRACTICE BLOCK -->
+  <div class="practice-block milestone" data-practice="1" data-verify="live">
+    <div class="practice-label">Your first live edit</div>
+    <div class="practice-title">Edit a real Wikipedia article</div>
+    <div class="practice-desc">This is the moment the training has been building toward. Take your time.</div>
+    <div class="task-list">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Chose an article to edit</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Read the full article and checked the talk page</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Identified one specific improvement to make</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Found a reliable source to support the edit</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Made the edit using VisualEditor</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Wrote a specific edit summary</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Previewed and published</div>
+      </div>
+    </div>
+    <div class="practice-complete-msg">You just edited Wikipedia. Check back in 24 hours to see if your edit is still there.</div>
+  </div>
+
+  <div class="check-wrap" data-check="4" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">Before editing a live article, what should you do first?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Make the edit quickly before the article changes</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Read the full article, check the talk page, review the edit history</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Post on the talk page announcing your plan</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Ask an administrator for permission</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(4)">Check answer</button>
+    <div class="check-feedback right">Read the full article, check the talk page, and review edit history. You need context before contributing. No permission required, just awareness.</div>
+    <div class="check-feedback wrong">Not quite. Read the article, check ongoing discussions, and understand the edit history before making changes.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(5)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 5 ===== -->
+<div class="section-divider" id="div-5"><hr></div>
+<div class="section locked" data-section="5">
+  <div class="section-number">Section 5 of 6</div>
+  <h2>When your edit gets challenged</h2>
+
+  <p>It will happen at some point. Not every time, maybe not on your first edit, but someone will revert your work or question your sources. This is normal.</p>
+
+  <p><strong>If your edit is reverted:</strong> Do not redo the same edit. That starts an edit war. Go to the talk page. Cite your source, explain what gap you were filling, point to the policy that supports your approach. Keep the tone neutral even if you think the revert was wrong. Most of the time, a calm explanation resolves it.</p>
+
+  <p><strong>If someone tags your content:</strong> Tags like [citation needed] or [dubious] are feedback, not attacks. Respond by adding a stronger source, clarifying the wording, or explaining on the talk page why the content is solid.</p>
+
+  <p><strong>If you encounter persistent opposition:</strong> Some articles have editors who resist certain content. After attempting talk page discussion, you can escalate:</p>
+
+  <div class="finder-grid">
+    <div class="finder-card">
+      <div class="finder-num">RfC</div>
+      <div><div class="finder-title">Request for comment</div><div class="finder-desc">Opens the discussion to the broader Wikipedia community.</div></div>
+    </div>
+    <div class="finder-card">
+      <div class="finder-num">3O</div>
+      <div><div class="finder-title">Third opinion</div><div class="finder-desc">A neutral editor reviews the dispute and gives their assessment.</div></div>
+    </div>
+    <div class="finder-card">
+      <div class="finder-num">WP</div>
+      <div><div class="finder-title">WikiProject support</div><div class="finder-desc">Editors in WP:LATINOS or other projects can review and weigh in.</div></div>
+    </div>
+    <div class="finder-card">
+      <div class="finder-num">CD</div>
+      <div><div class="finder-title">ClanDi community</div><div class="finder-desc">Your fellow editors on Discord for support and advice.</div></div>
+    </div>
+  </div>
+
+  <p>The key principle: your sources do the arguing for you. The better cited your content is, the harder it is for anyone to justify removing it.</p>
+
+  <div class="check-wrap" data-check="5" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">Your well-sourced edit was reverted. After checking, you believe it was correct. Best approach?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Redo the edit with a note explaining why you are right</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Post on the talk page with your sources and reasoning, then wait</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Report the other editor to administrators</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Delete their version and replace it with yours</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(5)">Check answer</button>
+    <div class="check-feedback right">Talk page, sources, reasoning. Let the evidence do the work. If you cannot reach agreement, escalate through RfC, third opinion, or WikiProject support.</div>
+    <div class="check-feedback wrong">Not quite. Go to the talk page with your sources. Redoing the edit or escalating to admins immediately are both overreactions at this stage.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(6)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 6 ===== -->
+<div class="section-divider" id="div-6"><hr></div>
+<div class="section locked" data-section="6">
+  <div class="section-number">Section 6 of 6</div>
+  <h2>What comes next</h2>
+
+  <p>You have edited a live Wikipedia article. Most people who read Wikipedia every day have never done that.</p>
+
+  <p>Module 5 goes deeper into the social side: navigating talk pages, understanding systemic bias in Wikipedia, and working with other editors on shared goals. Individual skills become community skills.</p>
+
+  <p>Between now and Module 5, keep editing. Check your watchlist. See how your first edit holds up. Make another one. The workflow gets more natural every time.</p>
+
+  <div style="margin-top: 24px;">
+    <button class="continue-btn" onclick="showCompletion()" style="background: var(--ink);">Complete Module 4 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></button>
+  </div>
+</div>
+
+<!-- Completion -->
+<div class="completion" id="completion">
+  <div class="completion-check">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+  </div>
+  <h2>Module 4 complete</h2>
+  <p>You are a Wikipedia editor now. Next: learning to work with the community and navigate the social dynamics of collaborative editing.</p>
+  <a id="next-module-link" class="continue-btn" href="/training/module/5" style="background: var(--ink);">Start Module 5 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></a>
+</div>
+{% endblock %}
+
+{% block module_scripts %}
+<script src="/static/js/training/tasks.js"></script>
+<script src="/static/js/training/verify-edit.js"></script>
+{% endblock %}

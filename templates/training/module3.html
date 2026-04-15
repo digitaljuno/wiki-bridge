@@ -1,0 +1,426 @@
+{% extends "training/_base_module.html" %}
+
+{% block module_styles %}
+<style>
+  code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 14px; background: #f0eeea; padding: 2px 7px; border-radius: 4px; color: var(--accent); }
+
+  /* Tool comparison cards */
+  .tool-card { background: white; border: 1px solid var(--light); border-radius: 8px; padding: 20px; }
+  .tool-card.recommended { border-color: var(--accent); border-width: 2px; }
+  .tool-card-badge { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 6px; }
+  .tool-card-name { font-weight: 600; font-size: 16px; margin-bottom: 6px; }
+  .tool-card-desc { font-size: 14px; color: var(--mid); line-height: 1.55; }
+
+  /* Good/bad example cards for edit summaries */
+  .example-card { padding: 16px; border-radius: 8px; font-size: 14px; line-height: 1.55; }
+  .example-card.good { background: var(--success-soft); }
+  .example-card.bad { background: var(--accent-soft); }
+  .example-card-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .example-card.good .example-card-label { color: var(--success); }
+  .example-card.bad .example-card-label { color: var(--accent); }
+  .example-item { margin-bottom: 4px; color: var(--ink); }
+</style>
+{% endblock %}
+
+{% block module_content %}
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-label"><span data-i18n="training.module">Module</span> 3</div>
+  <h1>The Sandbox</h1>
+  <div class="hero-objectives">
+    You will learn how to use your personal practice space on Wikipedia, where nothing you do affects the real encyclopedia. By the end, you will have formatted text, created links, written a citation, and saved real edits, not just read about them.
+  </div>
+</div>
+
+<!-- ===== SECTION 1 ===== -->
+<div class="section visible" data-section="1">
+  <div class="section-number">Section 1 of 7</div>
+  <h2>What is a sandbox and why does it matter?</h2>
+
+  <p>Every Wikipedia editor gets a sandbox. It is a page that belongs to you, lives on Wikipedia's servers, and works exactly like a real article, except nothing you do there shows up anywhere public. You can write, delete, experiment, break things, start over. Nobody cares. That is the whole point.</p>
+
+  <div class="sandbox-url">
+    <div class="label">Your sandbox address</div>
+    User:YourUsername/sandbox
+  </div>
+
+  <p>Click your username in the top right corner of any Wikipedia page and select "Sandbox" to get there. Keep it open in another tab for the rest of this module. You are going to use it a lot.</p>
+
+  <p>Why not just practice on real articles? Because the learning curve is real, and the worst way to learn is by breaking something on a page that thousands of people are reading. The sandbox lets you figure things out at your own speed with zero consequences. Every confident editor you see on Wikipedia started right here.</p>
+
+  <div class="check-wrap" data-check="1" data-correct="2">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">What happens if you make a mistake in your Wikipedia sandbox?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>The mistake appears on the live Wikipedia article</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Other editors are notified about your error</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Nothing. The sandbox is your private practice space</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Your account gets flagged for low-quality edits</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(1)">Check answer</button>
+    <div class="check-feedback right">Nothing. Your sandbox is separate from live articles. Experiment, make mistakes, start over as many times as you want.</div>
+    <div class="check-feedback wrong">Not quite. The sandbox is completely separate from live articles. Nothing you do there affects anything public.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(2)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 2 ===== -->
+<div class="section-divider" id="div-2"><hr></div>
+<div class="section locked" data-section="2">
+  <div class="section-number">Section 2 of 7</div>
+  <h2>Choosing your editing tool</h2>
+
+  <p>Wikipedia has two editing tools. Pick the right one now and save yourself some confusion.</p>
+
+  <div class="tool-compare">
+    <div class="tool-card recommended">
+      <div class="tool-card-badge">Start here</div>
+      <div class="tool-card-name">VisualEditor</div>
+      <div class="tool-card-desc">Works like Google Docs. Click, type, use toolbar buttons. What you see is roughly what readers will see. Best for learning.</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-card-badge">Later</div>
+      <div class="tool-card-name">Source Editor</div>
+      <div class="tool-card-desc">Shows raw code with markup like <code>== Heading ==</code> and <code>[[links]]</code>. More control, steeper curve. Not needed yet.</div>
+    </div>
+  </div>
+
+  <p>To switch between them, look for the pencil icon at the top of any editable page. If you see a bunch of brackets and equal signs, you are in Source Editor. Switch back to VisualEditor.</p>
+
+  <p>One more thing: use a laptop or desktop for this module. You can make quick edits on your phone, but for learning the tools, a bigger screen makes a real difference.</p>
+
+  <div class="check-wrap" data-check="2" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">Which editing tool should you start with as a new editor?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Source Editor, because it gives you more control</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>VisualEditor, because it works like a regular text editor</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Both at the same time to compare them</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Neither. Practice in a Google Doc first</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(2)">Check answer</button>
+    <div class="check-feedback right">VisualEditor. It works like a standard text editor and is the easiest starting point. Source Editor comes later.</div>
+    <div class="check-feedback wrong">Not quite. Start with VisualEditor. It behaves like Google Docs and is much easier to learn.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(3)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3 ===== -->
+<div class="section-divider" id="div-3"><hr></div>
+<div class="section locked" data-section="3">
+  <div class="section-number">Section 3 of 7</div>
+  <h2>Formatting basics</h2>
+
+  <p>Open your sandbox in another tab. You are going to follow along.</p>
+
+  <p><strong>Bold and italics.</strong> Highlight text, click B or I in the toolbar. Bold the first time the subject's name appears in an article. Italics for book titles, film titles, albums, and foreign-language words.</p>
+
+  <p><strong>Headings.</strong> Use the paragraph dropdown menu (says "Paragraph" by default) to select Heading, Sub-heading 1, etc. Headings create the table of contents on longer articles and make the page scannable.</p>
+
+  <p><strong>Links.</strong> Highlight a word, click the chain-link icon, type the name of the Wikipedia article you want to link to. Wikipedia suggests matches as you type. If the article exists, you will see it in the dropdown. Internal links are how Wikipedia connects topics together.</p>
+
+  <p><strong>Lists.</strong> Toolbar buttons for bulleted or numbered lists. Bullets for unordered items, numbers for sequences.</p>
+
+  <p>That covers what you will use in 90% of your editing. Tables, templates, and infoboxes exist but come later.</p>
+
+  <div class="practice-block" data-practice="1" data-verify="sandbox">
+    <div class="practice-label">Practice</div>
+    <div class="practice-title">Format a short paragraph</div>
+    <div class="practice-desc">Go to your sandbox and write 3-4 sentences about a person, place, or topic from your community. As you write, complete each task below.</div>
+    <div class="task-list">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Subject's name in <strong>bold</strong> (first mention)</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">One word or phrase in <em>italics</em></div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">At least one internal link to another Wikipedia article</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">A heading above the paragraph</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Saved your sandbox page</div>
+      </div>
+    </div>
+    <div class="practice-complete-msg">All tasks done. Nice work. Your first formatted Wikipedia content.</div>
+  </div>
+
+  <div class="check-wrap" data-check="3" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">When should you bold text in a Wikipedia article?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Whenever you want to emphasize something important</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>The first time the article's subject is mentioned</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>For all proper nouns throughout the article</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Only in headings and subheadings</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(3)">Check answer</button>
+    <div class="check-feedback right">The first time the article's subject is mentioned. Bold is not for general emphasis on Wikipedia. It follows a specific convention.</div>
+    <div class="check-feedback wrong">Not quite. Wikipedia uses bold only for the article subject's first mention, not for general emphasis.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(4)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4 ===== -->
+<div class="section-divider" id="div-4"><hr></div>
+<div class="section locked" data-section="4">
+  <div class="section-number">Section 4 of 7</div>
+  <h2>Writing citations</h2>
+
+  <p>This is the most important skill in the entire training. All the formatting and linking in the world does not matter if your content is not cited. Uncited claims get removed. Well-cited content survives almost anything.</p>
+
+  <p>A citation connects a statement to a published source. Those little numbered brackets [1] [2] [3] you see in Wikipedia articles? Each one links to a source at the bottom of the page.</p>
+
+  <p><strong>Adding a citation in VisualEditor:</strong> Place your cursor at the end of the sentence. Click "Cite" in the toolbar. Three options: <strong>Automatic</strong> (paste a URL, Wikipedia tries to build the citation for you, always double-check the result), <strong>Manual</strong> (fill in author, title, publisher, date yourself), or <strong>Re-use</strong> (reference a source you already cited elsewhere in the article). Click "Insert" and you will see a numbered bracket appear.</p>
+
+  <p>Before you cite anything, though, you need to know what counts as a reliable source.</p>
+
+  <!-- Source evaluation exercise -->
+  <div class="practice-block" data-practice="source-eval">
+    <div class="practice-label">Exercise</div>
+    <div class="practice-title">Is it a reliable source?</div>
+    <div class="practice-desc">For each source below, decide: would Wikipedia accept this as reliable? Click your answer.</div>
+
+    <div class="source-eval">
+      <div class="source-item" data-answer="yes">
+        <div class="source-item-text">Peer-reviewed article in a medical journal</div>
+        <div class="source-buttons">
+          <button class="source-btn" data-choice="yes" onclick="evalSource(this)">Reliable</button>
+          <button class="source-btn" data-choice="no" onclick="evalSource(this)">Not reliable</button>
+        </div>
+      </div>
+      <div class="source-feedback">Among the strongest sources you can use, especially for health-related content.</div>
+
+      <div class="source-item" data-answer="no">
+        <div class="source-item-text">A tweet from a political commentator with 500K followers</div>
+        <div class="source-buttons">
+          <button class="source-btn" data-choice="yes" onclick="evalSource(this)">Reliable</button>
+          <button class="source-btn" data-choice="no" onclick="evalSource(this)">Not reliable</button>
+        </div>
+      </div>
+      <div class="source-feedback">Social media posts are not considered reliable sources regardless of follower count.</div>
+
+      <div class="source-item" data-answer="yes">
+        <div class="source-item-text">AP News or Reuters article</div>
+        <div class="source-buttons">
+          <button class="source-btn" data-choice="yes" onclick="evalSource(this)">Reliable</button>
+          <button class="source-btn" data-choice="no" onclick="evalSource(this)">Not reliable</button>
+        </div>
+      </div>
+      <div class="source-feedback">Major wire services like AP and Reuters are widely accepted as reliable.</div>
+
+      <div class="source-item" data-answer="no">
+        <div class="source-item-text">A personal blog by someone who works in the field</div>
+        <div class="source-buttons">
+          <button class="source-btn" data-choice="yes" onclick="evalSource(this)">Reliable</button>
+          <button class="source-btn" data-choice="no" onclick="evalSource(this)">Not reliable</button>
+        </div>
+      </div>
+      <div class="source-feedback">Blogs are self-published. Expertise does not change that. The same person's published work in a journal or newspaper would be fine.</div>
+
+      <div class="source-item" data-answer="yes">
+        <div class="source-item-text">Univision or Telemundo news report</div>
+        <div class="source-buttons">
+          <button class="source-btn" data-choice="yes" onclick="evalSource(this)">Reliable</button>
+          <button class="source-btn" data-choice="no" onclick="evalSource(this)">Not reliable</button>
+        </div>
+      </div>
+      <div class="source-feedback">Established news organizations. Spanish-language sources are absolutely reliable on Wikipedia.</div>
+
+      <div class="source-item" data-answer="no">
+        <div class="source-item-text">Another Wikipedia article</div>
+        <div class="source-buttons">
+          <button class="source-btn" data-choice="yes" onclick="evalSource(this)">Reliable</button>
+          <button class="source-btn" data-choice="no" onclick="evalSource(this)">Not reliable</button>
+        </div>
+      </div>
+      <div class="source-feedback">You cannot cite Wikipedia inside Wikipedia. Circular sourcing. Check the sources listed in that article instead.</div>
+    </div>
+  </div>
+
+  <!-- Citation practice -->
+  <div class="practice-block" data-practice="2">
+    <div class="practice-label">Practice</div>
+    <div class="practice-title">Add your first citation</div>
+    <div class="practice-desc">In your sandbox, write one factual sentence about a topic you care about. Then cite it using a reliable source you find online.</div>
+    <div class="task-list">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Wrote a factual sentence in your sandbox</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Found a reliable source that supports it</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Used the Cite tool (try Automatic first, then check the fields)</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">See a References section at the bottom of your sandbox</div>
+      </div>
+    </div>
+    <div class="practice-complete-msg">You just cited a source on Wikipedia. Most people who use Wikipedia every day have never done that.</div>
+  </div>
+
+  <div class="check-wrap" data-check="4" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">Which of these is a reliable source for a Wikipedia article about a reproductive health policy?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>A tweet from a commentator with 500K followers</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>A peer-reviewed article in a medical journal</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>A healthcare worker's personal blog</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>The Wikipedia article on a related topic</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(4)">Check answer</button>
+    <div class="check-feedback right">A peer-reviewed medical journal article. Among the strongest sources available, particularly for health-related claims.</div>
+    <div class="check-feedback wrong">Not quite. Peer-reviewed research in a medical journal is the strongest option here. Social media, blogs, and Wikipedia itself do not meet reliability standards.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(5)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 5 ===== -->
+<div class="section-divider" id="div-5"><hr></div>
+<div class="section locked" data-section="5">
+  <div class="section-number">Section 5 of 7</div>
+  <h2>Edit summaries and good habits</h2>
+
+  <p>Every time you save an edit, Wikipedia asks you to describe what you changed. This is the edit summary. It is easy to skip. Never skip it.</p>
+
+  <p>Edit summaries are how other editors know what you did without reading every change. A clear summary builds trust. A blank one draws suspicion, especially on sensitive articles.</p>
+
+  <div class="example-grid">
+    <div class="example-card good">
+      <div class="example-card-label">Good summaries</div>
+      <div class="example-item">"Added citation from AP News for 2024 policy change"</div>
+      <div class="example-item">"Fixed broken link in references"</div>
+      <div class="example-item">"Expanded career section, two new sources"</div>
+    </div>
+    <div class="example-card bad">
+      <div class="example-card-label">Bad summaries</div>
+      <div class="example-item">"Updated"</div>
+      <div class="example-item">"Fixed stuff"</div>
+      <div class="example-item">(blank)</div>
+    </div>
+  </div>
+
+  <p><strong>Minor edit checkbox:</strong> Only use it for small, uncontroversial changes like fixing a typo or correcting a broken link. Never check it when you add content, change facts, or add citations. Marking a real edit as "minor" hides your work from people who filter those out, and it looks like you are trying to avoid attention.</p>
+
+  <p><strong>Preview before you save.</strong> Before clicking "Publish changes," review your work. Catches formatting mistakes, broken links, and citation issues before they go live.</p>
+
+  <div class="practice-block" data-practice="3">
+    <div class="practice-label">Practice</div>
+    <div class="practice-title">Edit with a summary</div>
+    <div class="practice-desc">Go to your sandbox and make any edit. Before saving, write a specific edit summary. Get in the habit now.</div>
+    <div class="task-list">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Made an edit in your sandbox</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Wrote a specific edit summary before saving</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Previewed the change before publishing</div>
+      </div>
+    </div>
+    <div class="practice-complete-msg">Good habits start early. These three steps (edit, summarize, preview) are your workflow from now on.</div>
+  </div>
+
+  <div class="check-wrap" data-check="5" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">You just added a paragraph with two citations. Which edit summary is best?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>"Updated article"</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>"Added background section on org history, cited NYT and Pew Research"</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>"Minor edit"</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>(leave it blank)</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(5)">Check answer</button>
+    <div class="check-feedback right">Specific summaries build trust and make your work easy to track. Always name what you changed and where the information came from.</div>
+    <div class="check-feedback wrong">Not quite. Specific is better. Other editors need to understand what you did without reading every change.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(6)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 6 ===== -->
+<div class="section-divider" id="div-6"><hr></div>
+<div class="section locked" data-section="6">
+  <div class="section-number">Section 6 of 7</div>
+  <h2>Building your watchlist</h2>
+
+  <p>Wikipedia has a built-in way to track articles you care about. Your watchlist shows you every change made to any article you are watching. To add an article, go to the page and click the star icon next to the title. The star fills in and that article is on your list.</p>
+
+  <p><strong>Why this matters:</strong> If you edit an article and someone removes your citation two days later, your watchlist shows you that change. You can review it and respond, whether that means reverting or starting a Talk Page discussion. Without a watchlist, you would never know.</p>
+
+  <p>Your watchlist also teaches you to read diffs. A diff shows what changed between two versions of an article: added text in green, removed text in red. Scanning diffs quickly is a skill you will use constantly.</p>
+
+  <div class="practice-block" data-practice="4">
+    <div class="practice-label">Practice</div>
+    <div class="practice-title">Set up your watchlist</div>
+    <div class="practice-desc">Go to Special:Watchlist (the bell icon) and start watching articles you care about.</div>
+    <div class="task-list">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Found your watchlist page</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Added at least 5 articles to your watchlist</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Looked at a diff on one of the watched articles</div>
+      </div>
+    </div>
+    <div class="practice-complete-msg">Your watchlist is set. Check it every few days to see what is happening on articles you care about.</div>
+  </div>
+
+  <div class="continue-wrap show">
+    <button class="continue-btn" onclick="unlockNext(7)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button>
+  </div>
+</div>
+
+<!-- ===== SECTION 7 ===== -->
+<div class="section-divider" id="div-7"><hr></div>
+<div class="section locked" data-section="7">
+  <div class="section-number">Section 7 of 7</div>
+  <h2>What comes next</h2>
+
+  <p>You now have the core mechanical skills: formatting, links, citations, edit summaries, and a watchlist. These are the tools you will use in every edit from here on.</p>
+
+  <p>Module 4 is where you put all of this together on a live article. You will go deeper on article structure, learn more about finding and evaluating sources, and make your first substantive edit to a real Wikipedia page.</p>
+
+  <p>Before you move on, spend more time in your sandbox if you want. The more comfortable the tools feel, the more confident you will be when you are editing something thousands of people might read. No rush.</p>
+
+  <div style="margin-top: 24px;">
+    <button class="continue-btn" onclick="showCompletion()" style="background: var(--ink);">Complete Module 3 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></button>
+  </div>
+</div>
+
+<!-- Completion -->
+<div class="completion" id="completion">
+  <div class="completion-check">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+  </div>
+  <h2>Module 3 complete</h2>
+  <p>You have formatted text, created links, added a citation, and built a watchlist. Next, you will use all of these skills on a real article.</p>
+  <a id="next-module-link" class="continue-btn" href="/training/module/4" style="background: var(--ink);">Start Module 4 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></a>
+</div>
+{% endblock %}
+
+{% block module_scripts %}
+<script src="/static/js/training/tasks.js"></script>
+<script src="/static/js/training/source-eval.js"></script>
+<script src="/static/js/training/verify-edit.js"></script>
+{% endblock %}

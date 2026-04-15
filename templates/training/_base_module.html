@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="{{ lang or 'en' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Module {{ module_id }}: {{ module_title }} | ClanDi{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/training.css">
+<meta name="theme-color" content="#c44b2b">
+{% block module_styles %}{% endblock %}
+</head>
+<body class="training-body">
+
+<div class="topbar">
+  <a href="/training" class="topbar-logo" aria-label="Back to training">Clan<span>Di</span></a>
+  <div class="topbar-meta">
+    <span data-i18n="training.wiki101">Wiki 101</span> &middot;
+    <span data-i18n="training.module">Module</span> {{ module_id }} <span data-i18n="training.of">of</span> 6
+  </div>
+</div>
+<div class="progress-wrap"><div class="progress-track"><div class="progress-fill" id="progressFill"></div></div></div>
+
+<main
+  id="moduleRoot"
+  data-module-id="{{ module_id }}"
+  data-total-sections="{{ total_sections }}"
+  data-logged-in="{{ '1' if user else '0' }}"
+>
+  {% block module_content %}{% endblock %}
+</main>
+
+<div style="height: 80px;"></div>
+
+<!-- i18n loader (lightweight, same as base.html) -->
+<script>
+  (function(){
+    var lang = localStorage.getItem('clandi-lang') || '{{ lang or "en" }}';
+    fetch('/static/lang/' + lang + '.json').then(function(r){return r.json();}).then(function(t){
+      document.querySelectorAll('[data-i18n]').forEach(function(el){
+        if (t[el.getAttribute('data-i18n')]) el.textContent = t[el.getAttribute('data-i18n')];
+      });
+      document.documentElement.lang = lang;
+    }).catch(function(){});
+  })();
+</script>
+
+<script src="/static/js/training/module-core.js"></script>
+<script src="/static/js/training/quiz.js"></script>
+{% block module_scripts %}{% endblock %}
+</body>
+</html>

@@ -6,6 +6,7 @@ Expands WikiBridge into a full training, tracking, and gamification app.
 """
 
 import csv
+import httpx
 import io
 import math
 import os
@@ -106,321 +107,6 @@ def _compute_priority(r: dict) -> int:
     return score
 
 
-# Training module content with quizzes
-TRAINING_MODULES = [
-    {
-        "number": 1,
-        "title": "Welcome to Wikimedia",
-        "track": "Wiki Basics",
-        "content_html": """
-        <h4>What is Wikimedia?</h4>
-        <p>Wikimedia is the ecosystem of free knowledge projects — Wikipedia, Wikimedia Commons, Wikidata, and more. Wikipedia alone gets over <strong>15 billion page views per month</strong>, making it one of the most visited websites on Earth.</p>
-        <h4>Why does this matter?</h4>
-        <p>Wikipedia shapes what billions of people understand about the world. When topics about Latino communities, reproductive justice, and BIPOC experiences are missing or poorly written, it affects real-world perceptions and decisions.</p>
-        <h4>The 5 Pillars of Wikipedia</h4>
-        <ol>
-            <li><strong>Wikipedia is an encyclopedia</strong> — not a soapbox, blog, or directory</li>
-            <li><strong>Neutral Point of View (NPOV)</strong> — present all significant views fairly</li>
-            <li><strong>Free content</strong> — everything is freely licensed</li>
-            <li><strong>Respect and civility</strong> — treat other editors with respect</li>
-            <li><strong>No firm rules</strong> — policies are guidelines, use good judgment</li>
-        </ol>
-        <h4>Your Task</h4>
-        <p>Create your Wikipedia account if you haven't already. Explore the five pillars and think about what topics you'd like to improve.</p>
-        """,
-        "videos": [
-            {"title": "What is Wikipedia? (Wikimedia Foundation)", "url": "https://www.youtube.com/watch?v=xQ4ba28-oGs"},
-        ],
-        "quiz": [
-            {
-                "question": "How many page views does Wikipedia get per month?",
-                "options": ["1 billion", "5 billion", "15 billion", "50 billion"],
-                "correct": 2,
-            },
-            {
-                "question": "Which of these is one of Wikipedia's 5 Pillars?",
-                "options": [
-                    "Only experts can edit",
-                    "Neutral Point of View (NPOV)",
-                    "English is the primary language",
-                    "Editors must use their real names",
-                ],
-                "correct": 1,
-            },
-            {
-                "question": "Why is editing Wikipedia important for Latino communities?",
-                "options": [
-                    "It pays well",
-                    "It's required by law",
-                    "Underrepresented stories affect real-world perceptions",
-                    "Wikipedia only covers mainstream topics",
-                ],
-                "correct": 2,
-            },
-        ],
-    },
-    {
-        "number": 2,
-        "title": "Creating an Account & Your User Page",
-        "track": "Wiki Basics",
-        "content_html": """
-        <h4>Setting Up Your Wikipedia Account</h4>
-        <p>Your Wikipedia identity is important. Choose a username that represents you professionally — it will be visible on every edit you make.</p>
-        <h4>Your User Page</h4>
-        <p>Your user page is your personal space on Wikipedia. It's where you can:</p>
-        <ul>
-            <li>Introduce yourself to the community</li>
-            <li>List your areas of interest and expertise</li>
-            <li>Display userboxes showing your affiliations</li>
-            <li>Keep track of articles you're working on</li>
-        </ul>
-        <h4>Editing Basics</h4>
-        <p>Wikipedia uses a visual editor and a source editor. The <strong>visual editor</strong> works like a word processor — great for beginners. The <strong>source editor</strong> uses wikitext markup for more control.</p>
-        <h4>Your Task</h4>
-        <p>Create or update your user page. Add the WikiLatinos userbox and list 2-3 topics you want to work on.</p>
-        """,
-        "videos": [],
-        "quiz": [
-            {
-                "question": "What is a user page on Wikipedia?",
-                "options": [
-                    "A page only admins can see",
-                    "Your personal space to introduce yourself and list interests",
-                    "A page that tracks your errors",
-                    "A messaging system between editors",
-                ],
-                "correct": 1,
-            },
-            {
-                "question": "Which editor is best for beginners?",
-                "options": [
-                    "Source editor",
-                    "Command-line editor",
-                    "Visual editor",
-                    "HTML editor",
-                ],
-                "correct": 2,
-            },
-        ],
-    },
-    {
-        "number": 3,
-        "title": "Sandbox = Safe Space",
-        "track": "Content Creation",
-        "content_html": """
-        <h4>What is the Sandbox?</h4>
-        <p>Every Wikipedia user has a <strong>sandbox</strong> — a private draft space where you can practice editing without affecting live articles. Think of it as your personal lab.</p>
-        <h4>How to Use Your Sandbox</h4>
-        <ol>
-            <li>Navigate to your sandbox: <code>User:YourUsername/sandbox</code></li>
-            <li>Click "Edit" to start writing</li>
-            <li>Practice formatting: headings, bold, italic, links, references</li>
-            <li>Save your work — it's only visible to you until you move it</li>
-        </ol>
-        <h4>Key Formatting</h4>
-        <ul>
-            <li><code>== Heading ==</code> for section headers</li>
-            <li><code>'''bold'''</code> for bold text</li>
-            <li><code>''italic''</code> for italic text</li>
-            <li><code>[[Article Name]]</code> for internal links</li>
-            <li><code>[https://example.com Text]</code> for external links</li>
-        </ul>
-        <h4>Your Task</h4>
-        <p>Go to your sandbox and write a 2-3 paragraph draft about a topic you care about. Include at least one heading, one internal link, and one reference.</p>
-        """,
-        "videos": [],
-        "quiz": [
-            {
-                "question": "What is the correct wikitext for making text bold?",
-                "options": [
-                    "<b>bold</b>",
-                    "**bold**",
-                    "'''bold'''",
-                    "__bold__",
-                ],
-                "correct": 2,
-            },
-            {
-                "question": "What is the sandbox used for?",
-                "options": [
-                    "Publishing articles directly",
-                    "Messaging other editors",
-                    "Practicing editing without affecting live articles",
-                    "Reporting vandalism",
-                ],
-                "correct": 2,
-            },
-            {
-                "question": "How do you create an internal link to another Wikipedia article?",
-                "options": [
-                    "[Article Name]",
-                    "[[Article Name]]",
-                    "<link>Article Name</link>",
-                    "(Article Name)",
-                ],
-                "correct": 1,
-            },
-        ],
-    },
-    {
-        "number": 4,
-        "title": "Research & Reliable Sources",
-        "track": "Content Creation",
-        "content_html": """
-        <h4>Why Sources Matter</h4>
-        <p>Wikipedia's power comes from <strong>verifiability</strong>. Every claim should be backed by a reliable, published source. This is what separates Wikipedia from opinion blogs.</p>
-        <h4>What Counts as a Reliable Source?</h4>
-        <ul>
-            <li><strong>Yes:</strong> Peer-reviewed journals, major newspapers, academic books, government reports</li>
-            <li><strong>Sometimes:</strong> Reputable magazines, established news outlets, organizational reports</li>
-            <li><strong>No:</strong> Personal blogs, social media, self-published content, press releases</li>
-        </ul>
-        <h4>Adding References</h4>
-        <p>Use the <code>&lt;ref&gt;</code> tag or the visual editor's "Cite" button to add inline citations. Every paragraph of content should have at least one reference.</p>
-        <h4>Finding Sources for Latino/BIPOC Topics</h4>
-        <p>Academic databases like JSTOR, Google Scholar, and the Hispanic American Historical Review are great starting points. Local and community newspapers are also valuable for topics mainstream media doesn't cover.</p>
-        <h4>Your Task</h4>
-        <p>Find 3 reliable sources for the topic you drafted in your sandbox. Add proper citations using the reference format.</p>
-        """,
-        "videos": [],
-        "quiz": [
-            {
-                "question": "Which of these is NOT a reliable source for Wikipedia?",
-                "options": [
-                    "The New York Times",
-                    "A peer-reviewed journal article",
-                    "A personal blog post",
-                    "A government census report",
-                ],
-                "correct": 2,
-            },
-            {
-                "question": "What Wikipedia principle requires every claim to be backed by sources?",
-                "options": [
-                    "Notability",
-                    "Verifiability",
-                    "Consensus",
-                    "Neutrality",
-                ],
-                "correct": 1,
-            },
-            {
-                "question": "Which database is good for finding sources on Latino history?",
-                "options": [
-                    "Reddit",
-                    "Wikipedia itself",
-                    "JSTOR and Google Scholar",
-                    "Twitter/X",
-                ],
-                "correct": 2,
-            },
-        ],
-    },
-    {
-        "number": 5,
-        "title": "Making Your First Live Edit",
-        "track": "Community & Leadership",
-        "content_html": """
-        <h4>From Sandbox to Live Wikipedia</h4>
-        <p>You've practiced in your sandbox — now it's time to make a real edit. Start small: fix a typo, add a missing reference, or expand a stub article.</p>
-        <h4>Best Practices for Your First Edit</h4>
-        <ul>
-            <li><strong>Start small:</strong> Don't rewrite an entire article on day one</li>
-            <li><strong>Write clear edit summaries:</strong> Explain what you changed and why</li>
-            <li><strong>Be bold but careful:</strong> Wikipedia encourages boldness, but respect existing content</li>
-            <li><strong>Watch the article:</strong> Click "Watch" to monitor changes after your edit</li>
-        </ul>
-        <h4>Dealing with Reverts</h4>
-        <p>Sometimes other editors may undo your changes. Don't take it personally — check the reason, discuss on the article's Talk page, and learn from it. This is how Wikipedia's collaborative editing works.</p>
-        <h4>Your Task</h4>
-        <p>Make your first live edit! Use WikiBridge to find a gap or stub, then improve it. Remember to add sources and write a clear edit summary.</p>
-        """,
-        "videos": [],
-        "quiz": [
-            {
-                "question": "What should you include with every edit you make?",
-                "options": [
-                    "Your real name",
-                    "A clear edit summary explaining what you changed",
-                    "A link to your social media",
-                    "An apology for editing",
-                ],
-                "correct": 1,
-            },
-            {
-                "question": "If another editor reverts your change, what should you do?",
-                "options": [
-                    "Revert their revert immediately",
-                    "Give up editing forever",
-                    "Check the reason and discuss on the Talk page",
-                    "Report them to Wikipedia admins",
-                ],
-                "correct": 2,
-            },
-        ],
-    },
-    {
-        "number": 6,
-        "title": "Translation & Community Leadership",
-        "track": "Community & Leadership",
-        "content_html": """
-        <h4>Bridging the Language Gap</h4>
-        <p>One of the most impactful things you can do is <strong>translate articles between English and Spanish Wikipedia</strong>. Many important topics exist in one language but not the other.</p>
-        <h4>Using the Content Translation Tool</h4>
-        <ol>
-            <li>Go to <code>Special:ContentTranslation</code> on Wikipedia</li>
-            <li>Choose a source article and target language</li>
-            <li>The tool provides machine translation as a starting point</li>
-            <li>Review and improve every paragraph — don't just publish machine translation</li>
-            <li>Adapt cultural context as needed</li>
-        </ol>
-        <h4>Becoming a Community Leader</h4>
-        <p>As you gain experience, you can:</p>
-        <ul>
-            <li>Mentor new editors in your community</li>
-            <li>Organize edit-a-thons and training sessions</li>
-            <li>Contribute to WikiProject discussions</li>
-            <li>Apply for grants to support your editing campaigns</li>
-        </ul>
-        <h4>Your Task</h4>
-        <p>Use WikiBridge to find a high-priority article missing in Spanish (or English). Start translating it using the Content Translation tool, or expand an existing stub with properly sourced content.</p>
-        """,
-        "videos": [],
-        "quiz": [
-            {
-                "question": "When using the Content Translation tool, what should you do with the machine translation?",
-                "options": [
-                    "Publish it directly — it's good enough",
-                    "Review and improve every paragraph before publishing",
-                    "Delete it and start from scratch",
-                    "Only fix spelling errors",
-                ],
-                "correct": 1,
-            },
-            {
-                "question": "What Wikipedia tool helps you translate articles between languages?",
-                "options": [
-                    "Google Translate",
-                    "Special:ContentTranslation",
-                    "WikiBridge",
-                    "The Visual Editor",
-                ],
-                "correct": 1,
-            },
-            {
-                "question": "Which of these is a way to grow as a Wikipedia community leader?",
-                "options": [
-                    "Only edit articles, never interact with others",
-                    "Organize edit-a-thons and mentor new editors",
-                    "Delete articles you disagree with",
-                    "Avoid WikiProject discussions",
-                ],
-                "correct": 1,
-            },
-        ],
-    },
-]
-
 
 # ========== Page Routes ==========
 
@@ -468,18 +154,71 @@ async def dashboard(request: Request):
 
 @app.get("/training", response_class=HTMLResponse)
 async def training(request: Request):
+    """Journey tracker page — overview of all 6 modules with progress states."""
     user = _get_user(request)
-    completed = db.get_training_progress(user["id"]) if user else []
-    next_module = min((m for m in range(1, 7) if m not in completed), default=7)
+    if user:
+        state = db.get_training_state(user["id"])
+    else:
+        # Build empty state
+        state = {
+            "modules": [{
+                "module_id": mid,
+                "section_index": 1,
+                "total_sections": db.MODULE_TOTAL_SECTIONS[mid],
+                "completed": False,
+                "completed_at": None,
+                "updated_at": None,
+                "checks_passed": 0,
+                "checks_total": 0,
+                "tasks_completed": 0,
+                "tasks_total": 0,
+            } for mid in range(1, 7)],
+            "stats": {
+                "modules_completed": 0,
+                "total_checks_passed": 0,
+                "total_tasks_completed": 0,
+                "streak_days": 0,
+            },
+        }
 
-    return templates.TemplateResponse("training.html", {
+    # Determine active module (first not-completed)
+    active_module_id = next(
+        (m["module_id"] for m in state["modules"] if not m["completed"]), 6
+    )
+
+    return templates.TemplateResponse("training/journey.html", {
         "request": request,
         "user": user,
         "active": "training",
         "lang": user.get("language_pref", "en") if user else "en",
-        "modules": TRAINING_MODULES,
-        "completed": completed,
-        "next_module": next_module,
+        "state": state,
+        "module_titles": MODULE_TITLES,
+        "active_module_id": active_module_id,
+    })
+
+
+@app.get("/training/module/{module_id}", response_class=HTMLResponse)
+async def training_module(request: Request, module_id: int):
+    """Render an individual interactive training module."""
+    if module_id < 1 or module_id > 6:
+        return RedirectResponse("/training", status_code=302)
+
+    user = _get_user(request)
+    # Gate: must complete previous module
+    if user and module_id > 1:
+        state = db.get_training_state(user["id"])
+        prev_done = state["modules"][module_id - 2]["completed"]
+        if not prev_done:
+            return RedirectResponse("/training", status_code=302)
+
+    return templates.TemplateResponse(f"training/module{module_id}.html", {
+        "request": request,
+        "user": user,
+        "active": "training",
+        "lang": user.get("language_pref", "en") if user else "en",
+        "module_id": module_id,
+        "module_title": MODULE_TITLES[module_id],
+        "total_sections": db.MODULE_TOTAL_SECTIONS[module_id],
     })
 
 
@@ -639,61 +378,170 @@ async def auth_logout(request: Request):
 
 # ========== API Routes ==========
 
-@app.post("/api/training/complete/{module_number}")
-async def api_complete_module(request: Request, module_number: int):
+# ========== Interactive Training API ==========
+
+# Module titles used for Discord notifications and module header
+MODULE_TITLES = {
+    1: "Welcome to Wikipedia",
+    2: "Your Account and User Page",
+    3: "Sandbox = Safe Space",
+    4: "Research, Sources, and Your First Live Edit",
+    5: "Community and Navigating Disagreement",
+    6: "Advanced Editing and What Comes Next",
+}
+
+
+@app.post("/api/training/progress")
+async def api_training_progress(request: Request):
+    """Save which section a user has reached in a module."""
     user = _get_user(request)
     if not user:
-        return {"success": False, "error": "Not logged in"}
-
-    if module_number < 1 or module_number > 6:
-        return {"success": False, "error": "Invalid module number"}
-
-    # Check prerequisites — must complete previous modules first
-    completed = db.get_training_progress(user["id"])
-    if module_number > 1 and (module_number - 1) not in completed:
-        return {"success": False, "error": "Complete previous modules first"}
-
-    if module_number in completed:
-        return {"success": True, "already_completed": True}
-
-    # Validate quiz answers
+        return {"status": "error", "error": "Not logged in"}
     body = await request.json()
-    answers = body.get("answers", [])
+    module_id = int(body.get("module_id", 0))
+    section_index = int(body.get("section_index", 0))
+    total_sections = int(body.get("total_sections", 0))
+    if module_id < 1 or module_id > 6 or section_index < 1 or total_sections < 1:
+        return {"status": "error", "error": "Invalid parameters"}
+    db.upsert_module_progress(user["id"], module_id, section_index, total_sections)
+    db.record_weekly_action(user["id"])
+    return {"status": "ok"}
 
-    module_info = next((m for m in TRAINING_MODULES if m["number"] == module_number), None)
-    if not module_info:
-        return {"success": False, "error": "Module not found"}
 
-    quiz = module_info.get("quiz", [])
-    if quiz:
-        if len(answers) != len(quiz):
-            return {"success": False, "error": "Please answer all quiz questions"}
+@app.post("/api/training/check")
+async def api_training_check(request: Request):
+    """Save the result of a comprehension check."""
+    user = _get_user(request)
+    if not user:
+        return {"status": "error", "error": "Not logged in"}
+    body = await request.json()
+    module_id = int(body.get("module_id", 0))
+    check_id = int(body.get("check_id", 0))
+    correct = bool(body.get("correct"))
+    if module_id < 1 or module_id > 6 or check_id < 1:
+        return {"status": "error", "error": "Invalid parameters"}
+    db.save_check_result(user["id"], module_id, check_id, correct)
+    return {"status": "ok"}
 
-        wrong = []
-        for i, q in enumerate(quiz):
-            if i >= len(answers) or answers[i] != q["correct"]:
-                wrong.append(i + 1)
 
-        if wrong:
-            return {
-                "success": False,
-                "error": f"Incorrect answers on question(s) {', '.join(str(w) for w in wrong)}. Review the material and try again.",
-                "wrong": wrong,
-            }
+@app.post("/api/training/task")
+async def api_training_task(request: Request):
+    """Save a task checklist item's completion state."""
+    user = _get_user(request)
+    if not user:
+        return {"status": "error", "error": "Not logged in"}
+    body = await request.json()
+    module_id = int(body.get("module_id", 0))
+    practice_id = str(body.get("practice_id", ""))
+    task_index = int(body.get("task_index", -1))
+    completed = bool(body.get("completed"))
+    if module_id < 1 or module_id > 6 or not practice_id or task_index < 0:
+        return {"status": "error", "error": "Invalid parameters"}
+    db.save_task_completion(user["id"], module_id, practice_id, task_index, completed)
+    return {"status": "ok"}
 
-    newly_completed = db.complete_module(user["id"], module_number)
-    if newly_completed:
+
+@app.post("/api/training/complete")
+async def api_training_complete(request: Request):
+    """Mark a module as completed. Unlocks the next module."""
+    user = _get_user(request)
+    if not user:
+        return {"status": "error", "error": "Not logged in"}
+    body = await request.json()
+    module_id = int(body.get("module_id", 0))
+    if module_id < 1 or module_id > 6:
+        return {"status": "error", "error": "Invalid module"}
+
+    newly = db.mark_module_completed(user["id"], module_id)
+    # Also record in the legacy training_progress table for dashboard/badge parity
+    db.complete_module(user["id"], module_id)
+
+    if newly:
         db.record_weekly_action(user["id"])
-
-        if module_info:
+        try:
             await discord_webhook.notify_training_complete(
-                user["display_name"], module_info["title"]
+                user["display_name"], MODULE_TITLES.get(module_id, f"Module {module_id}")
             )
+        except Exception:
+            pass
+        try:
+            await gamification.check_and_award_badges(user["id"])
+        except Exception:
+            pass
 
-        # Check gamification badges
-        await gamification.check_and_award_badges(user["id"])
+    next_module = module_id + 1 if module_id < 6 else None
+    return {"status": "ok", "next_module": next_module}
 
-    return {"success": True}
+
+@app.get("/api/training/state")
+async def api_training_state(request: Request):
+    """Return the full training state for the journey tracker + module pages."""
+    user = _get_user(request)
+    if not user:
+        # Provide empty state for anonymous users
+        empty_modules = [{
+            "module_id": mid,
+            "section_index": 1,
+            "total_sections": db.MODULE_TOTAL_SECTIONS[mid],
+            "completed": False,
+            "completed_at": None,
+            "updated_at": None,
+            "checks_passed": 0,
+            "checks_total": 0,
+            "tasks_completed": 0,
+            "tasks_total": 0,
+        } for mid in range(1, 7)]
+        return {
+            "modules": empty_modules,
+            "stats": {
+                "modules_completed": 0,
+                "total_checks_passed": 0,
+                "total_tasks_completed": 0,
+                "streak_days": 0,
+            },
+        }
+    return db.get_training_state(user["id"])
+
+
+@app.get("/api/training/verify-edit")
+async def api_verify_edit(request: Request, type: str = "sandbox"):
+    """Check if the logged-in user has made a Wikipedia edit.
+    type=sandbox → User namespace (ns=2), type=live → Article namespace (ns=0).
+    Uses the public MediaWiki API — no OAuth token needed."""
+    user = _get_user(request)
+    if not user:
+        return {"verified": False, "error": "Not logged in"}
+    username = user.get("wiki_username", "")
+    if not username or username == "TestEditor":
+        # Dev auto-login can't be verified against real Wikipedia
+        return {"verified": True, "dev": True}
+
+    ns = 2 if type == "sandbox" else 0
+    api_url = "https://en.wikipedia.org/w/api.php"
+    params = {
+        "action": "query",
+        "list": "usercontribs",
+        "ucuser": username,
+        "ucnamespace": str(ns),
+        "uclimit": "1",
+        "ucprop": "title|timestamp",
+        "format": "json",
+        "formatversion": "2",
+    }
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(api_url, params=params)
+            data = resp.json()
+        contribs = data.get("query", {}).get("usercontribs", [])
+        if contribs:
+            return {
+                "verified": True,
+                "title": contribs[0].get("title", ""),
+                "timestamp": contribs[0].get("timestamp", ""),
+            }
+        return {"verified": False}
+    except Exception as e:
+        return {"verified": False, "error": str(e)}
 
 
 @app.post("/api/tracker/refresh")

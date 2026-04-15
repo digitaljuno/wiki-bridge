@@ -1,0 +1,279 @@
+{% extends "training/_base_module.html" %}
+
+{% block module_styles %}
+<style>
+  /* Step-by-step callout */
+  .step-item { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+  .step-item:last-child { margin-bottom: 0; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 15px; line-height: 1.55; }
+
+  /* Sustainability cards */
+  .sustain-grid { display: grid; gap: 10px; margin: 24px 0; }
+  .sustain-card { background: white; border: 1px solid var(--light); border-radius: 8px; padding: 18px 20px; }
+  .sustain-card-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .sustain-card-desc { font-size: 14px; color: var(--mid); line-height: 1.55; }
+
+  /* Skills summary grid */
+  .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 24px 0; }
+  @media (max-width: 520px) { .skills-grid { grid-template-columns: 1fr; } }
+  .skill-card { background: white; border: 1px solid var(--light); border-radius: 8px; padding: 14px 18px; font-size: 14px; line-height: 1.5; }
+  .skill-card-check { color: var(--success); margin-right: 6px; font-weight: 700; }
+
+  /* Graduation completion variant */
+  .completion.graduation .completion-check { background: var(--accent); }
+  .completion-cta { margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 14px; background: #f0eeea; padding: 2px 7px; border-radius: 4px; color: var(--accent); }
+</style>
+{% endblock %}
+
+{% block module_content %}
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-label"><span data-i18n="training.module">Module</span> 6 &middot; Final module</div>
+  <h1>Advanced Editing and What Comes Next</h1>
+  <div class="hero-objectives">
+    You will learn how to create new articles, translate content between English and Spanish, upload images, and build a sustained editing practice. This is the last module. By the end, you have the full toolkit.
+  </div>
+</div>
+
+<!-- ===== SECTION 1 ===== -->
+<div class="section visible" data-section="1">
+  <div class="section-number">Section 1 of 5</div>
+  <h2>Creating a new article</h2>
+
+  <p>Everything so far has been improving existing content. Creating a new article is different. You are building from nothing, and Wikipedia has specific expectations.</p>
+
+  <p><strong>The first question: is the subject notable?</strong> That means "significant coverage in reliable, independent sources." You need at least two or three published sources not connected to the subject itself. A person's own website or a press release from their employer does not count.</p>
+
+  <p>This is where systemic bias hits hardest. Many people and topics that matter to our communities have not received mainstream coverage. That does not mean they are not notable. It means you may need to dig harder: ethnic media, academic databases, local press archives. If the sources exist but are just harder to find, the subject is notable. If the sources genuinely do not exist, the article will likely get nominated for deletion.</p>
+
+  <div class="steps-block">
+    <div class="steps-block-title">How to create a new article</div>
+    <div class="step-item"><div class="step-num">1</div><div class="step-text"><strong>Draft in your sandbox or the Draft namespace.</strong> Write at <code>User:YourUsername/sandbox</code> or <code>Draft:Article Name</code>. Do not publish directly.</div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-text"><strong>Structure it like a real article.</strong> Lead section, body sections by theme, citations throughout, categories at the bottom.</div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-text"><strong>Get feedback.</strong> Share the draft with your WikiProject or on ClanDi Discord before publishing.</div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-text"><strong>Submit or publish.</strong> From the Draft namespace, click "Submit for review." A volunteer reviewer evaluates it (can take days or weeks).</div></div>
+  </div>
+
+  <div class="warning-box">
+    <strong>Common rejection reasons:</strong> Insufficient sources, promotional tone, reading like an essay instead of an encyclopedia entry, or not establishing notability. If rejected, read the feedback, fix what was flagged, resubmit.
+  </div>
+
+  <div class="check-wrap" data-check="1" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">You want to create an article about a local reproductive rights organizer. What do you need first?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Permission from the organizer</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>At least 2-3 reliable, independent published sources about them</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>A minimum of 1,000 words ready to go</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Approval from a Wikipedia administrator</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(1)">Check answer</button>
+    <div class="check-feedback right">Independent published sources. Notability is established through coverage, not permission or admin approval. If the sources exist, you can build the article.</div>
+    <div class="check-feedback wrong">Not quite. You need independent, published sources that cover the subject. That is what establishes notability on Wikipedia.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(2)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 2 ===== -->
+<div class="section-divider" id="div-2"><hr></div>
+<div class="section locked" data-section="2">
+  <div class="section-number">Section 2 of 5</div>
+  <h2>Translating articles between English and Spanish</h2>
+
+  <p>This is one of the highest-impact things you can do as a bilingual editor. Millions of people read Spanish Wikipedia, and many topics with full English coverage either do not exist in Spanish or are barely there. Translation does not just duplicate information. It makes knowledge accessible to an entirely different audience.</p>
+
+  <div class="steps-block">
+    <div class="steps-block-title">Using the Content Translation tool</div>
+    <div class="step-item"><div class="step-num">1</div><div class="step-text"><strong>Enable it.</strong> Preferences &gt; Beta features &gt; check "Content Translation." Save.</div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-text"><strong>Start a translation.</strong> Go to Special:ContentTranslation. Choose source and target languages, search for the article.</div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-text"><strong>Translate with context.</strong> Split screen: original on the left, your translation on the right. Machine translation is a starting point. Rewrite for clarity. Adapt cultural references.</div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-text"><strong>Adjust sources.</strong> Replace or supplement English sources with Spanish-language ones when possible.</div></div>
+    <div class="step-item"><div class="step-num">5</div><div class="step-text"><strong>Publish.</strong> It goes live on the target language Wikipedia.</div></div>
+  </div>
+
+  <div class="warning-box">
+    <strong>Do not publish raw machine translations.</strong> Wikipedia actively patrols for this and will tag or delete articles that are clearly unreviewed machine output. The Content Translation tool is a starting point, not a finished product.
+  </div>
+
+  <div class="practice-block" data-practice="1">
+    <div class="practice-label">Practice</div>
+    <div class="practice-title">Set up Content Translation</div>
+    <div class="practice-desc">You do not have to translate an entire article right now, but get the tool ready so you can when you are.</div>
+    <div class="task-list">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Enabled Content Translation in Preferences &gt; Beta features</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Opened Special:ContentTranslation and explored the interface</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Identified one article that exists in English but not Spanish (or needs expansion)</div>
+      </div>
+    </div>
+    <div class="practice-complete-msg">Translation tool is ready. When you find the right article, you know how to start.</div>
+  </div>
+
+  <div class="check-wrap" data-check="2" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">The machine translation sounds awkward in several paragraphs. What should you do?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Publish as-is since the tool generated it</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Rewrite the paragraphs so they read naturally in Spanish</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Delete the awkward paragraphs and keep only what translated well</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Switch to Google Translate for a better result</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(2)">Check answer</button>
+    <div class="check-feedback right">Rewrite them. Good translation reads like it was written in the target language. Machine translation is a draft, not a finished product.</div>
+    <div class="check-feedback wrong">Not quite. Machine output needs human editing. Rewrite so it reads naturally in Spanish.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(3)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3 ===== -->
+<div class="section-divider" id="div-3"><hr></div>
+<div class="section locked" data-section="3">
+  <div class="section-number">Section 3 of 5</div>
+  <h2>Uploading images to Wikimedia Commons</h2>
+
+  <p>Articles with images get more views and are taken more seriously. Many articles about underrepresented communities are missing images entirely. If you have a relevant photo, you can fix that.</p>
+
+  <p><strong>Wikimedia Commons</strong> is the media library shared across all Wikimedia projects. Images you upload there can be used in any Wikipedia article in any language.</p>
+
+  <div class="steps-block">
+    <div class="steps-block-title">How to upload</div>
+    <div class="step-item"><div class="step-num">1</div><div class="step-text">Go to <strong>commons.wikimedia.org</strong> and log in (same credentials as Wikipedia).</div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-text">Click "Upload" and select your file.</div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-text">Fill in what the image shows, when and where it was taken, who took it.</div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-text">Choose a license. <strong>CC-BY-SA 4.0</strong> is recommended.</div></div>
+    <div class="step-item"><div class="step-num">5</div><div class="step-text">Add relevant categories so people can find the image.</div></div>
+  </div>
+
+  <p><strong>What you can upload:</strong> Photos you took, original artwork you created, images clearly in the public domain (U.S. government works, expired copyrights).</p>
+
+  <p><strong>What you cannot upload:</strong> Images you found online, screenshots from media, photos taken by someone else (unless they explicitly released them under a free license).</p>
+
+  <p><strong>Always get consent from identifiable people.</strong> If your photo shows someone's face clearly enough to identify them, get their permission before uploading.</p>
+
+  <p><strong>Where your images make the biggest difference:</strong> Event photos, community landmarks, cultural celebrations, images of public figures at public events. These are exactly the kinds of images missing from articles about Latino communities.</p>
+
+  <div class="check-wrap" data-check="3" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">You took a photo at a community event and want to add it to a Wikipedia article. What is the process?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Upload it directly to the Wikipedia article</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Upload to Wikimedia Commons with a free license, then add it to the article</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Email it to a Wikipedia administrator</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Post it on social media and link to it</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(3)">Check answer</button>
+    <div class="check-feedback right">Upload to Wikimedia Commons first. All media in Wikipedia articles lives on Commons. Then you add it to the article from there.</div>
+    <div class="check-feedback wrong">Not quite. Media goes to Wikimedia Commons first, then gets added to articles from there.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(4)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4 ===== -->
+<div class="section-divider" id="div-4"><hr></div>
+<div class="section locked" data-section="4">
+  <div class="section-number">Section 4 of 5</div>
+  <h2>Sustaining your practice</h2>
+
+  <p>This is the end of the formal training. What happens next depends on you. Here is what we know about editors who stay active versus those who drop off.</p>
+
+  <div class="sustain-grid">
+    <div class="sustain-card">
+      <div class="sustain-card-name">Edit regularly, even in small amounts</div>
+      <div class="sustain-card-desc">One edit a week is better than a burst of twenty followed by silence. Your watchlist stays current, your editor relationships stay warm, your skills stay sharp.</div>
+    </div>
+    <div class="sustain-card">
+      <div class="sustain-card-name">Stay connected to a community</div>
+      <div class="sustain-card-desc">WP:LATINOS, Art+Feminism, ClanDi Discord, a few trusted collaborators. Having people who care about the same content areas makes the work sustainable.</div>
+    </div>
+    <div class="sustain-card">
+      <div class="sustain-card-name">Measure your impact</div>
+      <div class="sustain-card-desc">Your newcomer homepage and ClanDi dashboard track edits and page views. Seeing that a paragraph you wrote has been read 50,000 times keeps people going.</div>
+    </div>
+    <div class="sustain-card">
+      <div class="sustain-card-name">Teach someone else</div>
+      <div class="sustain-card-desc">The single most effective way to deepen your own skills. You now know enough to get someone started. ClanDi exists to make that easier.</div>
+    </div>
+  </div>
+
+  <div class="practice-block" data-practice="2">
+    <div class="practice-label">Practice</div>
+    <div class="practice-title">Set your plan</div>
+    <div class="practice-desc">Before you finish, commit to something specific.</div>
+    <div class="task-list">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Set a weekly editing goal (as small as one edit per week)</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Identified one article to translate or one new article to create</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Confirmed you are active in at least one community (WikiProject, Discord, or cohort)</div>
+      </div>
+    </div>
+    <div class="practice-complete-msg">You have a plan. That is what separates a training from a practice.</div>
+  </div>
+
+  <div class="continue-wrap show">
+    <button class="continue-btn" onclick="unlockNext(5)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button>
+  </div>
+</div>
+
+<!-- ===== SECTION 5 ===== -->
+<div class="section-divider" id="div-5"><hr></div>
+<div class="section locked" data-section="5">
+  <div class="section-number">Section 5 of 5</div>
+  <h2>What you have built</h2>
+
+  <p>Six modules. Here is what you can do now:</p>
+
+  <div class="skills-grid">
+    <div class="skill-card"><span class="skill-card-check">&#10003;</span> Find articles that need work on your issues</div>
+    <div class="skill-card"><span class="skill-card-check">&#10003;</span> Improve them with well-sourced information</div>
+    <div class="skill-card"><span class="skill-card-check">&#10003;</span> Navigate Wikipedia's rules and policies</div>
+    <div class="skill-card"><span class="skill-card-check">&#10003;</span> Handle pushback from other editors</div>
+    <div class="skill-card"><span class="skill-card-check">&#10003;</span> Create new articles from scratch</div>
+    <div class="skill-card"><span class="skill-card-check">&#10003;</span> Translate content between EN and ES</div>
+    <div class="skill-card"><span class="skill-card-check">&#10003;</span> Upload images to Wikimedia Commons</div>
+    <div class="skill-card"><span class="skill-card-check">&#10003;</span> Work with the Wikipedia community</div>
+  </div>
+
+  <p>Every edit you make from here shapes what millions of people read and what AI systems learn from. The information landscape is not something that happens to our communities. It is something we can shape.</p>
+
+  <p>Keep editing. Stay connected. And when you are ready, bring someone else in.</p>
+
+  <div style="margin-top: 24px;">
+    <button class="continue-btn" onclick="showCompletion()" style="background: var(--ink); padding: 16px 36px; font-size: 16px;">Complete Wiki 101 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></button>
+  </div>
+</div>
+
+<!-- Graduation -->
+<div class="completion graduation" id="completion">
+  <div class="completion-check">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+  </div>
+  <h2>Wiki 101 Complete</h2>
+  <p>You started with "what even is Wikipedia editing" and you now have the full toolkit: account safety, formatting, citations, live edits, community navigation, article creation, translation, and image uploads.</p>
+  <p>What you do with it is up to you. We think you will do a lot.</p>
+  <div class="completion-cta">
+    <a id="next-module-link" class="continue-btn" href="/training" style="background: var(--accent);">See your journey <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></a>
+    <a class="continue-btn" href="/gaps" style="background: var(--ink);">Explore knowledge gaps <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></a>
+  </div>
+</div>
+{% endblock %}
+
+{% block module_scripts %}
+<script src="/static/js/training/tasks.js"></script>
+{% endblock %}

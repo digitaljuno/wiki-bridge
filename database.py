@@ -92,6 +92,41 @@ def init_db():
             end_date DATE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
+
+        -- Interactive training module tables (ClanDi 2.0) --
+
+        CREATE TABLE IF NOT EXISTS module_progress (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            module_id INTEGER NOT NULL,
+            section_index INTEGER NOT NULL DEFAULT 1,
+            total_sections INTEGER NOT NULL,
+            completed BOOLEAN DEFAULT 0,
+            completed_at TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, module_id)
+        );
+
+        CREATE TABLE IF NOT EXISTS check_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            module_id INTEGER NOT NULL,
+            check_id INTEGER NOT NULL,
+            correct BOOLEAN NOT NULL,
+            answered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, module_id, check_id)
+        );
+
+        CREATE TABLE IF NOT EXISTS task_completions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            module_id INTEGER NOT NULL,
+            practice_id TEXT NOT NULL,
+            task_index INTEGER NOT NULL,
+            completed BOOLEAN DEFAULT 0,
+            completed_at TIMESTAMP,
+            UNIQUE(user_id, module_id, practice_id, task_index)
+        );
     """)
     conn.commit()
     conn.close()
@@ -462,6 +497,193 @@ def get_all_users() -> list[dict]:
     ).fetchall()
     conn.close()
     return [dict(r) for r in rows]
+
+
+# ---- Interactive module helpers ----
+
+# Total sections per module (source: reference HTML files)
+MODULE_TOTAL_SECTIONS = {1: 6, 2: 6, 3: 7, 4: 6, 5: 6, 6: 5}
+
+
+def upsert_module_progress(user_id: int, module_id: int, section_index: int,
+                            total_sections: int) -> None:
+    """Upsert a user's progress within a module (last-reached section)."""
+    conn = get_db()
+    now = datetime.utcnow().isoformat()
+    conn.execute(
+        """INSERT INTO module_progress
+            (user_id, module_id, section_index, total_sections, updated_at)
+           VALUES (?, ?, ?, ?, ?)
+           ON CONFLICT(user_id, module_id) DO UPDATE SET
+              section_index = MAX(section_index, excluded.section_index),
+              total_sections = excluded.total_sections,
+              updated_at = excluded.updated_at""",
+        (user_id, module_id, section_index, total_sections, now),
+    )
+    conn.commit()
+    conn.close()
+
+
+def mark_module_completed(user_id: int, module_id: int) -> bool:
+    """Mark a module's interactive progress as completed. Returns True if newly completed."""
+    conn = get_db()
+    now = datetime.utcnow().isoformat()
+    total = MODULE_TOTAL_SECTIONS.get(module_id, 6)
+    existing = conn.execute(
+        "SELECT completed FROM module_progress WHERE user_id = ? AND module_id = ?",
+        (user_id, module_id),
+    ).fetchone()
+    if existing and existing["completed"]:
+        conn.close()
+        return False
+    conn.execute(
+        """INSERT INTO module_progress
+            (user_id, module_id, section_index, total_sections, completed, completed_at, updated_at)
+           VALUES (?, ?, ?, ?, 1, ?, ?)
+           ON CONFLICT(user_id, module_id) DO UPDATE SET
+              completed = 1,
+              completed_at = excluded.completed_at,
+              section_index = excluded.section_index,
+              updated_at = excluded.updated_at""",
+        (user_id, module_id, total, total, now, now),
+    )
+    conn.commit()
+    conn.close()
+    return True
+
+
+def save_check_result(user_id: int, module_id: int, check_id: int, correct: bool) -> None:
+    """Save a comprehension check result (one row per (user, module, check))."""
+    conn = get_db()
+    conn.execute(
+        """INSERT INTO check_results (user_id, module_id, check_id, correct)
+           VALUES (?, ?, ?, ?)
+           ON CONFLICT(user_id, module_id, check_id) DO UPDATE SET
+              correct = excluded.correct,
+              answered_at = CURRENT_TIMESTAMP""",
+        (user_id, module_id, check_id, 1 if correct else 0),
+    )
+    conn.commit()
+    conn.close()
+
+
+def save_task_completion(user_id: int, module_id: int, practice_id: str,
+                          task_index: int, completed: bool) -> None:
+    """Save a task checklist item's completion state."""
+    conn = get_db()
+    now = datetime.utcnow().isoformat() if completed else None
+    conn.execute(
+        """INSERT INTO task_completions
+            (user_id, module_id, practice_id, task_index, completed, completed_at)
+           VALUES (?, ?, ?, ?, ?, ?)
+           ON CONFLICT(user_id, module_id, practice_id, task_index) DO UPDATE SET
+              completed = excluded.completed,
+              completed_at = excluded.completed_at""",
+        (user_id, module_id, practice_id, task_index, 1 if completed else 0, now),
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_module_progress_row(user_id: int, module_id: int) -> dict | None:
+    conn = get_db()
+    row = conn.execute(
+        "SELECT * FROM module_progress WHERE user_id = ? AND module_id = ?",
+        (user_id, module_id),
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def get_check_results(user_id: int, module_id: int) -> list[dict]:
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT check_id, correct FROM check_results WHERE user_id = ? AND module_id = ?",
+        (user_id, module_id),
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_task_completions(user_id: int, module_id: int) -> list[dict]:
+    conn = get_db()
+    rows = conn.execute(
+        """SELECT practice_id, task_index, completed FROM task_completions
+           WHERE user_id = ? AND module_id = ?""",
+        (user_id, module_id),
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_training_state(user_id: int) -> dict:
+    """Build the full training state dict for the journey tracker and module pages."""
+    conn = get_db()
+    mod_rows = conn.execute(
+        "SELECT * FROM module_progress WHERE user_id = ?", (user_id,)
+    ).fetchall()
+    chk_rows = conn.execute(
+        """SELECT module_id,
+                  SUM(CASE WHEN correct THEN 1 ELSE 0 END) as passed,
+                  COUNT(*) as total
+           FROM check_results WHERE user_id = ? GROUP BY module_id""",
+        (user_id,),
+    ).fetchall()
+    task_rows = conn.execute(
+        """SELECT module_id,
+                  SUM(CASE WHEN completed THEN 1 ELSE 0 END) as done,
+                  COUNT(*) as total
+           FROM task_completions WHERE user_id = ? GROUP BY module_id""",
+        (user_id,),
+    ).fetchall()
+    conn.close()
+
+    mod_map = {r["module_id"]: dict(r) for r in mod_rows}
+    chk_map = {r["module_id"]: dict(r) for r in chk_rows}
+    task_map = {r["module_id"]: dict(r) for r in task_rows}
+
+    modules = []
+    modules_completed = 0
+    total_checks_passed = 0
+    total_tasks_completed = 0
+
+    for mid in range(1, 7):
+        mp = mod_map.get(mid, {})
+        ch = chk_map.get(mid, {})
+        tk = task_map.get(mid, {})
+        completed = bool(mp.get("completed"))
+        if completed:
+            modules_completed += 1
+        checks_passed = int(ch.get("passed") or 0)
+        checks_total = int(ch.get("total") or 0)
+        tasks_done = int(tk.get("done") or 0)
+        tasks_total = int(tk.get("total") or 0)
+        total_checks_passed += checks_passed
+        total_tasks_completed += tasks_done
+
+        modules.append({
+            "module_id": mid,
+            "section_index": int(mp.get("section_index") or 1),
+            "total_sections": int(mp.get("total_sections") or MODULE_TOTAL_SECTIONS[mid]),
+            "completed": completed,
+            "completed_at": mp.get("completed_at"),
+            "updated_at": mp.get("updated_at"),
+            "checks_passed": checks_passed,
+            "checks_total": checks_total,
+            "tasks_completed": tasks_done,
+            "tasks_total": tasks_total,
+        })
+
+    streak_days = get_consecutive_weeks(user_id)  # proxy: consecutive active weeks
+    return {
+        "modules": modules,
+        "stats": {
+            "modules_completed": modules_completed,
+            "total_checks_passed": total_checks_passed,
+            "total_tasks_completed": total_tasks_completed,
+            "streak_days": streak_days,
+        },
+    }
 
 
 # Initialize on import

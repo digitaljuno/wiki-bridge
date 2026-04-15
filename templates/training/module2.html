@@ -1,0 +1,313 @@
+{% extends "training/_base_module.html" %}
+
+{% block module_styles %}
+<style>
+  /* Module 2-specific username cards */
+  .username-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .username-grid { grid-template-columns: 1fr; } }
+  .username-card { padding: 16px 20px; border-radius: 8px; }
+  .username-card.good { background: var(--success-soft); }
+  .username-card.bad { background: var(--accent-soft); }
+  .username-card-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .username-card.good .username-card-label { color: var(--success); }
+  .username-card.bad .username-card-label { color: var(--accent); }
+  .username-example { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 14px; margin-bottom: 4px; }
+  .username-card.bad .username-example { color: var(--mid); }
+  .username-why { font-size: 12px; color: var(--mid); margin-top: 2px; }
+
+  /* Step-by-step callout */
+  .step-item { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+  .step-item:last-child { margin-bottom: 0; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 15px; line-height: 1.55; }
+
+  /* Info card titles */
+  .info-card-title { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  .info-card-desc { font-size: 14px; color: var(--mid); line-height: 1.55; }
+
+  code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 14px; background: #f0eeea; padding: 2px 7px; border-radius: 4px; color: var(--accent); }
+</style>
+{% endblock %}
+
+{% block module_content %}
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-label"><span data-i18n="training.module">Module</span> 2</div>
+  <h1>Creating an Account and Staying Private</h1>
+  <div class="hero-objectives">
+    You will create your Wikipedia account, learn how to protect your identity while editing, and build your user page. By the end, you will have a working account ready for the rest of this training.
+  </div>
+</div>
+
+<!-- ===== SECTION 1 ===== -->
+<div class="section visible" data-section="1">
+  <div class="section-number">Section 1 of 6</div>
+  <h2>Why you need an account</h2>
+
+  <p>You can technically edit Wikipedia without logging in. But if you do, your IP address, which can reveal your approximate location, gets permanently attached to every edit. Anyone can see it. It does not expire.</p>
+
+  <p>For people editing articles about reproductive rights, immigration, or anything politically charged, that is a real risk. An account keeps your IP hidden and ties your work to a username you control.</p>
+
+  <p>Beyond safety, an account gives you practical tools:</p>
+
+  <div class="info-card">
+    <div class="info-card-title">Watchlist</div>
+    <div class="info-card-desc">Track articles you care about and see when someone changes them.</div>
+  </div>
+  <div class="info-card">
+    <div class="info-card-title">Talk page access</div>
+    <div class="info-card-desc">Communicate with other editors and join WikiProjects like WP:LATINOS.</div>
+  </div>
+  <div class="info-card">
+    <div class="info-card-title">Autoconfirmed status</div>
+    <div class="info-card-desc">After 4 days and 10 edits, you can edit certain protected pages. Some articles on sensitive topics are locked to new accounts.</div>
+  </div>
+  <div class="info-card">
+    <div class="info-card-title">Credibility</div>
+    <div class="info-card-desc">A consistent edit history earns trust from other editors and makes your work harder to dismiss.</div>
+  </div>
+
+  <p>Creating an account takes about five minutes. You are going to do it right now, or confirm the one you already have is set up safely.</p>
+
+  <div class="check-wrap" data-check="1" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">Why is editing without an account risky for people working on sensitive topics?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Wikipedia bans anonymous editors after a certain number of edits</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Your IP address is permanently visible, which can reveal your location</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Anonymous edits are automatically reviewed by moderators</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>You cannot edit articles longer than 1,000 words</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(1)">Check answer</button>
+    <div class="check-feedback right">Your IP address is permanently visible on every anonymous edit. For editors working on contested topics, this can expose location and identity. An account keeps that hidden.</div>
+    <div class="check-feedback wrong">Not quite. The main risk is that your IP address, which can reveal your approximate location, is permanently visible on every edit made without an account.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(2)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 2 ===== -->
+<div class="section-divider" id="div-2"><hr></div>
+<div class="section locked" data-section="2">
+  <div class="section-number">Section 2 of 6</div>
+  <h2>Choosing a username</h2>
+
+  <p>Your username is your identity on Wikipedia. Changing it later is possible but messy, and your old name still appears in edit histories. Pick carefully.</p>
+
+  <p><strong>The rule: nothing that connects to your real identity.</strong> No real name, no location, no workplace, no school. This matters especially for the kind of editing ClanDi focuses on.</p>
+
+  <div class="username-grid">
+    <div class="username-card good">
+      <div class="username-card-label">These work</div>
+      <div class="username-example">ArticleArchitect</div>
+      <div class="username-example">LatineEditor24</div>
+      <div class="username-example">CoastalFacts</div>
+      <div class="username-example">PageBuilder99</div>
+      <div class="username-why" style="margin-top: 8px;">Creative, unrevealing, memorable</div>
+    </div>
+    <div class="username-card bad">
+      <div class="username-card-label">These give you away</div>
+      <div class="username-example">Maria_Lopez_NYC</div>
+      <div class="username-why">Real name + city</div>
+      <div class="username-example">PPActionVolunteer</div>
+      <div class="username-why">Organizational affiliation</div>
+      <div class="username-example">UTexas2025</div>
+      <div class="username-why">School + year</div>
+    </div>
+  </div>
+
+  <p>Wikipedia also blocks usernames that impersonate real people, contain offensive language, or look like advertisements.</p>
+
+  <p>Take a minute to think about yours before moving on.</p>
+
+  <div class="check-wrap" data-check="2" data-correct="2">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">Which username best protects your identity?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>JessicaR_Denver</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>ReproJusticeOrganizer</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>CoastalFacts42</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>UnivOfTexasVolunteer</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(2)">Check answer</button>
+    <div class="check-feedback right">CoastalFacts42 reveals nothing about your name, location, affiliation, or school. The others each expose something that could identify you.</div>
+    <div class="check-feedback wrong">Not quite. Look for the username that reveals the least about who you are offline. Names, locations, organizations, and schools are all identifiers.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(3)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3 ===== -->
+<div class="section-divider" id="div-3"><hr></div>
+<div class="section locked" data-section="3">
+  <div class="section-number">Section 3 of 6</div>
+  <h2>Creating your account</h2>
+
+  <p>Open a new tab and follow along.</p>
+
+  <div class="steps-block">
+    <div class="steps-block-title">Step by step</div>
+    <div class="step-item"><div class="step-num">1</div><div class="step-text">Go to <strong>wikipedia.org</strong> and click "Create account" in the top right corner.</div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-text">Enter your username. Wikipedia tells you immediately if it is taken. Try variations until one works.</div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-text">Create a <strong>strong, unique password</strong>. Do not reuse one from another account.</div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-text">Enter an email address. If you are privacy-conscious, <strong>create a separate email just for Wikipedia</strong>. Do not use your work email or one with your real name.</div></div>
+    <div class="step-item"><div class="step-num">5</div><div class="step-text">Complete the CAPTCHA and click "Create your account."</div></div>
+  </div>
+
+  <div class="warning-box">
+    <strong>Check this setting right away:</strong> Go to Preferences (click your username, then Preferences). Under the Email tab, find "Allow other users to email me." If your email is tied to your real identity, turn this off.
+  </div>
+
+  <div class="practice-block" data-practice="1">
+    <div class="practice-label">Practice</div>
+    <div class="practice-title">Create your account</div>
+    <div class="practice-desc">If you already have one through ClanDi's Wikipedia login, confirm your settings are safe. If not, create one now.</div>
+    <div class="task-list">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Account created (or confirmed existing account)</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Username does not reveal personal information</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Email is separate from personal/work email (or email feature is disabled)</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Checked "Allow other users to email me" setting in Preferences</div>
+      </div>
+    </div>
+    <div class="practice-complete-msg">Account is set up and secure. You are ready to start editing.</div>
+  </div>
+
+  <div class="check-wrap" data-check="3" data-correct="2">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">Which email should you use for your Wikipedia account?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Your work email (yourname@organization.org)</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Your personal Gmail that includes your full name</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>A new email created specifically for Wikipedia</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Skip the email step entirely</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(3)">Check answer</button>
+    <div class="check-feedback right">A new email that does not include your real name. Work and personal emails connect to your identity. Skipping email entirely means you cannot reset your password.</div>
+    <div class="check-feedback wrong">Not quite. The safest option is a dedicated email that does not contain your real name or connect to your employer.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(4)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4 ===== -->
+<div class="section-divider" id="div-4"><hr></div>
+<div class="section locked" data-section="4">
+  <div class="section-number">Section 4 of 6</div>
+  <h2>Your user page</h2>
+
+  <p>Every account comes with a user page at <code>User:YourUsername</code>. Think of it as a brief introduction to who you are as an editor, not who you are as a person. That distinction matters.</p>
+
+  <p><strong>What to include:</strong> Your editing interests ("I work on articles about public health policy"), languages you edit in, and any WikiProjects you join. This signals you are here to do real work.</p>
+
+  <p><strong>What to leave out:</strong> Real name, city, employer, school, photos of yourself, personal social media. Some experienced editors choose to be public about their identity after years on the platform. As a new editor, start anonymous. You can always share more later. You cannot take it back.</p>
+
+  <div class="practice-block" data-practice="2">
+    <div class="practice-label">Practice</div>
+    <div class="practice-title">Set up your user page</div>
+    <div class="practice-desc">Click your username at the top of Wikipedia to find your user page. Click Edit.</div>
+    <div class="task-list">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Added 1-2 sentences about your editing interests</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Listed the languages you work in</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Confirmed no personal information is on the page</div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-checkbox"><svg class="task-checkmark" xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+        <div class="task-text">Saved with a clear edit summary</div>
+      </div>
+    </div>
+    <div class="practice-complete-msg">Your user page is set. Other editors can now see who you are as a contributor.</div>
+  </div>
+
+  <div class="check-wrap" data-check="4" data-correct="2">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">Which is appropriate for your user page?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Your full name and city</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>A link to your organization's website</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Your editing interests and languages you work in</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Your personal Instagram handle</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(4)">Check answer</button>
+    <div class="check-feedback right">Editing interests and languages. Your user page should describe you as an editor, not identify you as a person.</div>
+    <div class="check-feedback wrong">Not quite. Real name, organization links, and social media all create connections to your offline identity. Stick to editing interests and languages.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(5)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 5 ===== -->
+<div class="section-divider" id="div-5"><hr></div>
+<div class="section locked" data-section="5">
+  <div class="section-number">Section 5 of 6</div>
+  <h2>Staying safe on Wikipedia</h2>
+
+  <p>Wikipedia is a public platform. Everything you edit is visible. Your edit history builds over time. For editors on sensitive topics, some awareness is useful.</p>
+
+  <p><strong>What Wikipedia makes public:</strong> Every edit you make is logged permanently with your username, a timestamp, and the article. Your user page and talk page are visible to anyone. Your full edit history can be browsed by any user.</p>
+
+  <p><strong>What stays hidden (with an account):</strong> Your IP address, your real name (unless you posted it), your location (unless you revealed it).</p>
+
+  <p><strong>A pattern to watch:</strong> If you only ever edit articles about one narrow topic or one organization, it can draw attention. Wikipedia editors sometimes investigate new accounts on politically sensitive content for signs of organized editing or conflict of interest. This does not mean you should avoid your areas of interest. It means edit naturally, follow the policies from Module 1, and do not restrict yourself to a single narrow lane.</p>
+
+  <p><strong>If you experience harassment:</strong> Aggressive talk page messages, someone following your edits to revert them, any form of intimidation. Do not engage directly. Document it (screenshots, diffs) and report it at WP:ANI (Administrators' Noticeboard for Incidents). You can also reach out to the ClanDi community through Discord.</p>
+
+  <div class="check-wrap" data-check="5" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">Which of the following is visible to anyone on Wikipedia?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Your IP address (when logged in)</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Your complete edit history with timestamps</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Your registered email address</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Your real name (unless you added it yourself)</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(5)">Check answer</button>
+    <div class="check-feedback right">Your complete edit history with timestamps. IP is hidden when logged in. Email is only visible through Wikipedia's internal email function. Real name only if you posted it yourself.</div>
+    <div class="check-feedback wrong">Not quite. Your edit history, including every article you touched and when, is visible to anyone. The other items are either hidden or only visible if you chose to share them.</div>
+    <div class="continue-wrap"><button class="continue-btn" onclick="unlockNext(6)">Continue <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 6 ===== -->
+<div class="section-divider" id="div-6"><hr></div>
+<div class="section locked" data-section="6">
+  <div class="section-number">Section 6 of 6</div>
+  <h2>What comes next</h2>
+
+  <p>You now have a Wikipedia account, a username that protects your identity, and a user page that introduces you as an editor. These are the foundations for everything else in this training.</p>
+
+  <p>Module 3 is where the hands-on practice starts. You will open your sandbox, learn Wikipedia formatting, create links, write citations, and get comfortable with the tools before touching a live article.</p>
+
+  <div style="margin-top: 24px;">
+    <button class="continue-btn" onclick="showCompletion()" style="background: var(--ink);">Complete Module 2 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></button>
+  </div>
+</div>
+
+<!-- Completion -->
+<div class="completion" id="completion">
+  <div class="completion-check">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+  </div>
+  <h2>Module 2 complete</h2>
+  <p>Account created, identity protected, user page set. Next up: your sandbox, where you get to break things without consequences.</p>
+  <a id="next-module-link" class="continue-btn" href="/training/module/3" style="background: var(--ink);">Start Module 3 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></a>
+</div>
+{% endblock %}
+
+{% block module_scripts %}
+<script src="/static/js/training/tasks.js"></script>
+{% endblock %}

@@ -1,0 +1,306 @@
+{% extends "training/_base_module.html" %}
+
+{% block module_styles %}
+<style>
+  /* Module 1-specific cards */
+  .eco-grid { display: grid; gap: 12px; margin: 24px 0; }
+  .eco-card { background: white; border: 1px solid var(--light); border-radius: 8px; padding: 16px 20px; }
+  .eco-card-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .eco-card-desc { font-size: 14px; color: var(--mid); line-height: 1.55; }
+
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0; }
+  @media (max-width: 500px) { .stat-row { grid-template-columns: 1fr; } }
+  .stat-card { background: white; border: 1px solid var(--light); border-radius: 8px; padding: 20px; text-align: center; }
+  .stat-card .num { font-family: var(--serif); font-size: 32px; font-weight: 700; color: var(--accent); line-height: 1.1; }
+  .stat-card .label { font-size: 13px; color: var(--mid); margin-top: 4px; line-height: 1.4; }
+
+  .try-prompt { background: var(--ink); color: white; border-radius: 10px; padding: 24px 28px; margin: 28px 0; }
+  .try-prompt-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 8px; }
+  .try-prompt p { color: #d4d4d4; margin-bottom: 0; font-size: 15px; line-height: 1.65; }
+
+  .principle { margin-bottom: 24px; }
+  .principle-num { font-family: var(--serif); font-weight: 700; font-size: 20px; color: var(--accent); margin-bottom: 4px; }
+  .principle-title { font-weight: 600; font-size: 17px; margin-bottom: 6px; }
+  .principle p { margin-bottom: 10px; }
+
+  .mod-preview { display: grid; gap: 10px; margin: 20px 0; }
+  .mod-card { display: flex; align-items: baseline; gap: 14px; padding: 14px 18px; background: white; border: 1px solid var(--light); border-radius: 8px; }
+  .mod-card-num { font-family: var(--serif); font-weight: 700; font-size: 18px; color: var(--accent); flex-shrink: 0; }
+  .mod-card-title { font-weight: 600; font-size: 15px; }
+  .mod-card-desc { font-size: 13px; color: var(--mid); line-height: 1.5; margin-top: 2px; }
+
+  .completion-check { width: 56px; height: 56px; border-radius: 50%; background: var(--success-soft); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+  .completion-check svg { color: var(--success); }
+</style>
+{% endblock %}
+
+{% block module_content %}
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-label"><span data-i18n="training.module">Module</span> 1</div>
+  <h1>Welcome to Wikipedia</h1>
+  <div class="hero-objectives">
+    By the end of this module, you will know how Wikipedia works, who writes it (and who does not), why it matters more than you probably think, and the rules you need to follow so your edits do not get deleted five minutes after you hit save.
+  </div>
+</div>
+
+<!-- ===== SECTION 1 ===== -->
+<div class="section visible" data-section="1">
+  <div class="section-number">Section 1 of 6</div>
+  <h2>What is Wikipedia, and why should you care?</h2>
+
+  <p>You already use Wikipedia. You have probably read an article this week without even registering it. Google something and there it is, first or second result. Ask ChatGPT a question and the answer is built, in large part, from Wikipedia. It is the second-largest source that AI systems are trained on.</p>
+
+  <p>Most people think of Wikipedia as that website they used for a school paper once. It is actually the information layer underneath most of what you encounter online. And the part that surprises people: the whole thing is written by volunteers. Not a company. Not an algorithm. People who decide, on their own time, to show up and write.</p>
+
+  <p>Wikipedia belongs to a bigger network called <strong>Wikimedia</strong>. The pieces worth knowing:</p>
+
+  <div class="eco-grid">
+    <div class="eco-card">
+      <div class="eco-card-name">Wikipedia</div>
+      <div class="eco-card-desc">The encyclopedia. Over 60 million articles across 300+ languages. About 15 billion page views a month.</div>
+    </div>
+    <div class="eco-card">
+      <div class="eco-card-name">Wikimedia Commons</div>
+      <div class="eco-card-desc">Images, videos, and audio. Anyone can upload or use them, free.</div>
+    </div>
+    <div class="eco-card">
+      <div class="eco-card-name">Wikidata</div>
+      <div class="eco-card-desc">Structured data that quietly powers Google answer boxes, Siri, Alexa, and dozens of apps you use daily.</div>
+    </div>
+    <div class="eco-card">
+      <div class="eco-card-name">Wikisource &amp; Wikivoyage</div>
+      <div class="eco-card-desc">A library of historical texts and public domain books, plus a travel guide written by travelers.</div>
+    </div>
+  </div>
+
+  <p>All of these share the same principle: knowledge should be free and anyone should be able to help build it. That second part sounds democratic. In practice, "anyone" turns out to be a pretty narrow slice of the population.</p>
+
+  <div class="check-wrap" data-check="1" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">Wikipedia gets about 15 billion page views per month. Where does this content come from?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>A team of professional writers employed by the Wikimedia Foundation</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Volunteer editors from around the world</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>AI systems that generate articles automatically</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>News organizations that submit their articles</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(1)">Check answer</button>
+    <div class="check-feedback right">Volunteer editors from around the world. Every article on Wikipedia is written and maintained by unpaid volunteers. The Wikimedia Foundation keeps the servers running and handles legal matters, but they do not write the content.</div>
+    <div class="check-feedback wrong">Not quite. Wikipedia content is created entirely by volunteer editors from around the world. The Wikimedia Foundation handles servers and legal issues but does not write articles.</div>
+    <div class="continue-wrap">
+      <button class="continue-btn" onclick="unlockNext(2)">Continue to next section <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 2 ===== -->
+<div class="section-divider" id="div-2"><hr></div>
+<div class="section locked" data-section="2">
+  <div class="section-number">Section 2 of 6</div>
+  <h2>Who writes Wikipedia, and who is missing?</h2>
+
+  <p>Wikipedia has a demographics problem, and it is not subtle.</p>
+
+  <div class="stat-row">
+    <div class="stat-card"><div class="num">80-90%</div><div class="label">of Wikipedia editors are men</div></div>
+    <div class="stat-card"><div class="num">19%</div><div class="label">of biographies on English Wikipedia are about women</div></div>
+  </div>
+
+  <p>Content about Latino communities, Black communities, Indigenous peoples, and other marginalized groups is frequently thin, outdated, or flat-out missing. Spanish Wikipedia has roughly 2 million articles compared to English Wikipedia's 6.8 million. Many topics with full English coverage do not exist in Spanish at all, or the Spanish version is a two-sentence stub.</p>
+
+  <p>The stories exist. The scholarship exists. The journalism exists. The people who know these subjects best just have not been in the editing room.</p>
+
+  <p>Consider what happens when that changes. Before WikiLatinos editors got involved, there was no English Wikipedia article on children in immigration detention in the United States. News outlets, researchers, and advocacy organizations had covered the topic for years. But nobody had written the Wikipedia page. So when people searched for it, they found nothing.</p>
+
+  <p>A small group of trained editors built that article. Now it exists in the public record. That is what a few people with the right skills and an afternoon can do.</p>
+
+  <div class="try-prompt">
+    <div class="try-prompt-label">Try this right now</div>
+    <p>Go to Wikipedia and search for a person, place, or topic from your community. Then search for the same thing on Spanish Wikipedia. Is the article detailed or barely there? Missing entirely? When was it last updated? Whatever you just found (or did not find) is the reason this training exists.</p>
+  </div>
+
+  <div class="check-wrap" data-check="2" data-correct="2">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">What is the main reason topics about marginalized communities are underrepresented on Wikipedia?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Wikipedia has rules that prevent those topics from being included</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>The topics are not important enough to meet Wikipedia's standards</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>The people who know these stories best are underrepresented among editors</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Wikipedia only accepts articles written in English</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(2)">Check answer</button>
+    <div class="check-feedback right">The people who know these stories best are underrepresented among Wikipedia's editors. The rules do not exclude these topics. The editing community just does not reflect the diversity of the world it is trying to document.</div>
+    <div class="check-feedback wrong">Not quite. Wikipedia's rules do not exclude these topics. The gap exists because the editing community does not reflect the diversity of the subjects it covers.</div>
+    <div class="continue-wrap">
+      <button class="continue-btn" onclick="unlockNext(3)">Continue to next section <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3 ===== -->
+<div class="section-divider" id="div-3"><hr></div>
+<div class="section locked" data-section="3">
+  <div class="section-number">Section 3 of 6</div>
+  <h2>The AI connection</h2>
+
+  <p>This is the part that makes Wikipedia editing urgent right now.</p>
+
+  <p>Large language models, the technology behind ChatGPT, Claude, Gemini, and the rest, are trained on massive amounts of internet text. Wikipedia is one of the largest and most heavily weighted sources in that training data. When someone asks an AI tool about reproductive rights, immigration policy, a political figure, or a cultural tradition, the quality of the answer depends, more than most people realize, on what Wikipedia says.</p>
+
+  <p>Incomplete Wikipedia article? Incomplete AI answer. Biased article? The bias travels. Article does not exist? The AI improvises from whatever scraps it can find, and the results are usually worse.</p>
+
+  <div class="stat-row">
+    <div class="stat-card"><div class="num">#2</div><div class="label">Wikipedia is the second-largest AI training source</div></div>
+    <div class="stat-card"><div class="num">50%+</div><div class="label">of Latino voters use AI apps weekly</div></div>
+  </div>
+
+  <p>The information on Wikipedia today is becoming the foundation for how an entire generation accesses knowledge about the issues that affect our communities. If that information is missing our perspective, the gap gets baked into every AI-generated answer going forward.</p>
+
+  <p>A well-sourced paragraph you write this month could show up in thousands of AI responses over the next several years. That is not hypothetical. That is how the pipeline works.</p>
+
+  <div class="check-wrap" data-check="3" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">Why does editing Wikipedia in 2026 have a bigger impact than it did ten years ago?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Wikipedia has fewer editors now and needs more help</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>AI systems use Wikipedia as a major training source, so edits shape AI answers for millions of people</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Wikipedia changed its rules to allow opinion-based articles</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Google stopped indexing Wikipedia articles</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(3)">Check answer</button>
+    <div class="check-feedback right">AI systems use Wikipedia as a major training source. A single well-sourced edit now influences how AI tools answer questions for millions of users.</div>
+    <div class="check-feedback wrong">Not quite. The key change is that AI systems now use Wikipedia as a major source for training. This means your edits ripple far beyond the Wikipedia page itself.</div>
+    <div class="continue-wrap">
+      <button class="continue-btn" onclick="unlockNext(4)">Continue to next section <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4 ===== -->
+<div class="section-divider" id="div-4"><hr></div>
+<div class="section locked" data-section="4">
+  <div class="section-number">Section 4 of 6</div>
+  <h2>The rules that keep your edits alive</h2>
+
+  <p>Wikipedia has five core principles. These are not gentle suggestions. Ignore them and your work gets removed. Follow them and your edits become very hard for anyone to challenge.</p>
+
+  <div class="principle">
+    <div class="principle-num">1</div>
+    <div class="principle-title">Wikipedia is an encyclopedia.</div>
+    <p>Not a blog. Not a place for personal opinions. Not somewhere to make an argument, no matter how good it is. Wikipedia collects and organizes information already published in reliable sources. Your job is to surface what is documented, not to make new claims.</p>
+  </div>
+
+  <div class="principle">
+    <div class="principle-num">2</div>
+    <div class="principle-title">Neutral point of view.</div>
+    <p>Articles represent all significant viewpoints, weighted by the reliable sources behind each one. Neutral does not mean "both sides are equally valid." It means you present the evidence and let readers draw their own conclusions.</p>
+    <p>Writing about abortion access in a particular state? You describe the legal status, medical context, and political positions, all from published sources. You do not add your own commentary. This feels limiting at first. In practice, it is what gives Wikipedia its credibility, and it is what makes your edits stick.</p>
+  </div>
+
+  <div class="principle">
+    <div class="principle-num">3</div>
+    <div class="principle-title">Verifiability.</div>
+    <p>Every claim needs to trace back to a published, reliable source. Personal knowledge, even when accurate, is not enough. If you cannot point to a book, article, paper, or government document backing up what you wrote, anyone can remove it.</p>
+    <p>The flip side: well-sourced content is extremely hard to delete. The more citations you add, the more durable your work becomes. Citations are your best protection.</p>
+  </div>
+
+  <div class="principle">
+    <div class="principle-num">4</div>
+    <div class="principle-title">No original research.</div>
+    <p>You cannot publish your own analysis, theories, or unpublished findings. You also cannot stitch together sources to build a conclusion none of them individually support. Your role is to summarize and organize what reliable sources have already said.</p>
+  </div>
+
+  <div class="principle">
+    <div class="principle-num">5</div>
+    <div class="principle-title">Treat other editors with respect.</div>
+    <p>You will encounter people who disagree with your changes. Disputes get resolved through conversation, not through repeatedly undoing each other's work. Wikipedia calls this "Assume Good Faith": start from the assumption that other editors are trying to improve the article, even when you disagree. It does not mean you have to agree. It means you talk it out.</p>
+  </div>
+
+  <div class="check-wrap" data-check="4" data-correct="2">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">You know a fact about a local community leader from personal experience, but there is no published source. What should you do?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Add it with a note that it is common knowledge</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Add it without a citation since you know it is true</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Do not add it until you find a reliable published source</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Add it to the article's Talk Page as a suggestion</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(4)">Check answer</button>
+    <div class="check-feedback right">Do not add it until you find a reliable published source. This can be frustrating when you know something is true. But the verifiability rule keeps Wikipedia credible and protects your contributions from getting pulled down.</div>
+    <div class="check-feedback wrong">Not quite. Wikipedia requires every claim to be verifiable through a published, reliable source. Personal knowledge alone will not keep the edit from being removed.</div>
+    <div class="continue-wrap">
+      <button class="continue-btn" onclick="unlockNext(5)">Continue to next section <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 5 ===== -->
+<div class="section-divider" id="div-5"><hr></div>
+<div class="section locked" data-section="5">
+  <div class="section-number">Section 5 of 6</div>
+  <h2>How people work together on Wikipedia</h2>
+
+  <p>Even when you are editing alone at your laptop, you are part of a system with thousands of other editors. Knowing how the community works will save you a lot of unnecessary stress.</p>
+
+  <p><strong>Bold, Revert, Discuss.</strong> This is the rhythm. You make an edit. Someone disagrees, they might revert it, meaning they undo your change. This is not personal. It happens to everyone. When it happens, you go to the article's Talk Page and make your case. Explain what you changed, cite your sources, work toward something both sides can accept.</p>
+
+  <p><strong>Talk Pages are where the real decisions happen.</strong> Every article has one. Think of it as a structured conversation space where editors negotiate what the article should say. It is the one comments section on the internet that actually works, because there are norms and moderation.</p>
+
+  <p><strong>Edit summaries matter.</strong> Every time you save, Wikipedia asks for a short note about what you changed. Always write one. "Added citation for 2024 state policy change, source: AP News" builds trust. A blank summary or "updated" makes people wonder what you are up to.</p>
+
+  <p><strong>Politically sensitive topics get extra scrutiny.</strong> Articles about reproductive rights, immigration, and similar subjects attract editors with strong opinions. Your best defense is always thorough sourcing. When your work is well-cited and follows the five principles, removing it becomes very difficult to justify.</p>
+
+  <div class="check-wrap" data-check="5" data-correct="1">
+    <div class="check-label">Check your understanding</div>
+    <div class="check-question">You make an edit and another editor reverts it within an hour. What is the best next step?</div>
+    <div class="check-options">
+      <div class="check-option" data-value="0"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Redo your edit immediately since you know it was correct</div></div>
+      <div class="check-option" data-value="1"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Go to the Talk Page, explain your reasoning, and cite your sources</div></div>
+      <div class="check-option" data-value="2"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Report the other editor for harassment</div></div>
+      <div class="check-option" data-value="3"><div class="check-radio"><div class="check-radio-dot"></div></div><div>Give up and move on to a different article</div></div>
+    </div>
+    <button class="check-submit" onclick="submitCheck(5)">Check answer</button>
+    <div class="check-feedback right">Go to the Talk Page. Redoing the same edit without discussion can start an "edit war," which can get both editors blocked. The Talk Page is where you make your case with evidence.</div>
+    <div class="check-feedback wrong">Not quite. The correct move is to discuss it on the Talk Page. Repeating the edit without discussion risks an "edit war" and possible blocks for both editors.</div>
+    <div class="continue-wrap">
+      <button class="continue-btn" onclick="unlockNext(6)">Continue to next section <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 6 ===== -->
+<div class="section-divider" id="div-6"><hr></div>
+<div class="section locked" data-section="6">
+  <div class="section-number">Section 6 of 6</div>
+  <h2>What comes next</h2>
+
+  <p>This module was the groundwork. Here is what the rest of the training covers:</p>
+
+  <div class="mod-preview">
+    <div class="mod-card"><div class="mod-card-num">2</div><div><div class="mod-card-title">Creating an account and staying private</div><div class="mod-card-desc">Username safety, user pages, and understanding what Wikipedia makes public about you.</div></div></div>
+    <div class="mod-card"><div class="mod-card-num">3</div><div><div class="mod-card-title">The sandbox</div><div class="mod-card-desc">Your personal practice space. Learn formatting, try edits, break nothing.</div></div></div>
+    <div class="mod-card"><div class="mod-card-num">4</div><div><div class="mod-card-title">Building articles that hold power</div><div class="mod-card-desc">Citations, sources, structure. Where you edit a real article for the first time.</div></div></div>
+    <div class="mod-card"><div class="mod-card-num">5</div><div><div class="mod-card-title">Working with the community</div><div class="mod-card-desc">Talk pages, disagreements, systemic bias, and getting support.</div></div></div>
+    <div class="mod-card"><div class="mod-card-num">6</div><div><div class="mod-card-title">Advanced editing</div><div class="mod-card-desc">New articles, English-Spanish translation, image uploads, sustaining a practice.</div></div></div>
+  </div>
+
+  <p>By the end of all six modules, you will know how to find articles that need work on issues you care about, improve them with accurate information, navigate Wikipedia's rules, and handle pushback when it comes.</p>
+
+  <p>Next up: creating your account. In the meantime, spend a few minutes on wikipedia.org. Search for things you care about. Pay attention to what is there and what is not.</p>
+
+  <div style="margin-top: 24px;">
+    <button class="continue-btn" onclick="showCompletion()" style="background: var(--ink);">Complete Module 1 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></button>
+  </div>
+</div>
+
+<!-- Completion -->
+<div class="completion" id="completion">
+  <div class="completion-check">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+  </div>
+  <h2>Module 1 complete</h2>
+  <p>You have the foundation. Next, you will create your Wikipedia account and learn how to protect your identity while building your editing presence.</p>
+  <a id="next-module-link" class="continue-btn" href="/training/module/2" style="background: var(--ink);">Start Module 2 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></a>
+</div>
+{% endblock %}
