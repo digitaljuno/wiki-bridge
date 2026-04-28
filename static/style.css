@@ -713,3 +713,98 @@ main { padding: 0 0 2rem; }
   .help-modal { padding: 1.5rem; max-height: 90vh; }
   .help-section dl { grid-template-columns: 1fr; }
 }
+
+/* ========== Tab badge ========== */
+.tab-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0 0.5rem;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  line-height: 1.4rem;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-muted);
+  vertical-align: middle;
+}
+.tab.active .tab-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+/* ========== Row action buttons ========== */
+.row-actions {
+  white-space: nowrap;
+  text-align: center;
+}
+.row-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 2px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.row-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.row-btn.star.active {
+  background: rgba(255, 200, 80, 0.18);
+  color: #ffd166;
+  border-color: rgba(255, 200, 80, 0.4);
+}
+.row-btn.star:hover {
+  color: #ffd166;
+  border-color: rgba(255, 200, 80, 0.5);
+}
+.row-btn.remove:hover {
+  color: var(--gap);
+  border-color: var(--gap);
+}
+
+/* ========== Toast notifications ========== */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  background: rgba(20, 20, 30, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 1000;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast-success {
+  border-color: rgba(115, 245, 175, 0.4);
+  color: #b8f5d4;
+}
+.toast-info {
+  border-color: rgba(200, 150, 255, 0.4);
+  color: #d4c2ff;
+}

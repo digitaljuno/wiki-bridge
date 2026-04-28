@@ -119,38 +119,71 @@ async def topic_search(
 
 @app.get("/api/category-search")
 async def category_search(
-    category: str = Query(..., description="Wikipedia category name"),
+    category: str = Query(None, description="Wikipedia category name (single, legacy)"),
+    categories: str = Query(None, description="Pipe-separated category names (multi)"),
     direction: str = Query("es_missing_en", regex="^(es_missing_en|en_missing_es)$"),
     limit: int = Query(200, ge=1, le=500),
     deep: bool = Query(False, description="Include subcategories"),
 ):
-    """Search by Wikipedia category — gets all articles in a category and checks gaps."""
+    """Search by Wikipedia category. Accepts a single `category` or pipe-separated `categories`.
+
+    When multiple categories are provided, articles are fetched from each in
+    parallel, deduplicated by title, then checked for cross-language gaps.
+    """
+    import asyncio
+
     if direction == "es_missing_en":
         source_lang, target_lang = "en", "es"
     else:
         source_lang, target_lang = "es", "en"
 
-    try:
-        # Get category members (optionally with subcategories)
-        if deep:
-            titles = await wikipedia_api.get_category_members_recursive(
-                category, source_lang, limit, max_depth=2
-            )
-        else:
-            titles = await wikipedia_api.get_category_members(
-                category, source_lang, limit
-            )
+    # Normalize input — support both `category` (single) and `categories` (pipe-separated)
+    cat_list: list[str] = []
+    if categories:
+        cat_list = [c.strip() for c in categories.split("|") if c.strip()]
+    elif category:
+        cat_list = [category.strip()] if category.strip() else []
 
-        if not titles:
+    if not cat_list:
+        return {"error": "No categories provided", "results": []}
+
+    try:
+        # Fetch all categories in parallel
+        async def _fetch(cat: str) -> tuple[str, list[str]]:
+            if deep:
+                titles = await wikipedia_api.get_category_members_recursive(
+                    cat, source_lang, limit, max_depth=2
+                )
+            else:
+                titles = await wikipedia_api.get_category_members(
+                    cat, source_lang, limit
+                )
+            return cat, titles
+
+        fetched = await asyncio.gather(*[_fetch(c) for c in cat_list])
+
+        # Dedupe titles across categories, but track which categories each came from
+        title_to_categories: dict[str, list[str]] = {}
+        for cat_name, titles in fetched:
+            for t in titles:
+                title_to_categories.setdefault(t, []).append(cat_name)
+
+        all_titles = list(title_to_categories.keys())
+
+        if not all_titles:
             return {
-                "error": f"No articles found in category '{category}' on {source_lang}.wikipedia.org",
+                "error": f"No articles found in {'these categories' if len(cat_list) > 1 else f'category {cat_list[0]!r}'} on {source_lang}.wikipedia.org",
                 "results": [],
             }
 
-        # Check langlinks for all members
+        # Check langlinks for all unique members
         results = await wikipedia_api.check_langlinks(
-            titles, source_lang, target_lang
+            all_titles, source_lang, target_lang
         )
+
+        # Tag each result with the source categories it came from
+        for r in results:
+            r["source_categories"] = title_to_categories.get(r["title"], [])
 
         gaps = [r for r in results if r["exists_in_source"] and not r["has_translation"]]
         has_translation = [r for r in results if r["has_translation"]]
@@ -162,8 +195,15 @@ async def category_search(
             r["priority"] = _compute_priority(r)
         results.sort(key=lambda r: r["priority"], reverse=True)
 
+        # Per-category counts for the summary
+        per_category = []
+        for cat_name, titles in fetched:
+            per_category.append({"name": cat_name, "count": len(titles)})
+
         return {
-            "query": category,
+            "query": " + ".join(cat_list),
+            "categories": cat_list,
+            "per_category": per_category,
             "direction": direction,
             "total_in_category": len(results),
             "total_gaps": len(gaps),
@@ -177,7 +217,7 @@ async def category_search(
             "results": results,
         }
     except Exception as e:
-        return {"error": str(e), "query": category, "results": []}
+        return {"error": str(e), "query": " + ".join(cat_list), "results": []}
 
 
 @app.get("/api/check-articles")

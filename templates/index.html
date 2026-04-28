@@ -29,6 +29,7 @@
       <button class="tab active" data-tab="topic">Topic Search</button>
       <button class="tab" data-tab="category">Category Search</button>
       <button class="tab" data-tab="articles">Article List Check</button>
+      <button class="tab" data-tab="mylist">My List <span id="mylist-count" class="tab-badge">0</span></button>
     </div>
 
     <!-- Topic Search Panel -->
@@ -77,10 +78,10 @@
           <span class="iridescent-dot"></span>
         </div>
         <div class="panel-content">
-          <div class="form-row">
+          <div class="form-row" style="align-items: stretch;">
             <div class="form-group" style="flex: 2;">
-              <label for="category-input">Wikipedia Category</label>
-              <input type="text" id="category-input" placeholder='e.g., "Mexican writers", "Latin American novels"'>
+              <label for="category-input">Wikipedia Categories <span style="text-transform:none;font-weight:400;color:var(--text-muted);">(one per line — limit applies per category)</span></label>
+              <textarea id="category-input" placeholder='Paste one category per line, e.g.:&#10;Immigration to the United States&#10;Deportation from the United States&#10;Immigration and Customs Enforcement' style="min-height:90px;"></textarea>
             </div>
             <div class="form-group" style="flex: 0 0 auto; min-width: 180px;">
               <label for="cat-direction">Direction</label>
@@ -88,25 +89,21 @@
                 <option value="es_missing_en">EN exists, ES missing</option>
                 <option value="en_missing_es">ES exists, EN missing</option>
               </select>
-            </div>
-            <div class="form-group" style="flex: 0 0 auto; min-width: 100px;">
-              <label for="cat-limit">Limit</label>
+              <label for="cat-limit" style="margin-top: 0.75rem;">Limit per category</label>
               <select id="cat-limit">
                 <option value="50">50</option>
                 <option value="100">100</option>
                 <option value="200" selected>200</option>
                 <option value="500">500</option>
               </select>
-            </div>
-            <div class="form-group" style="flex: 0 0 auto; min-width: auto; justify-content: end;">
-              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; text-transform: none; font-weight: 500;">
+              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; text-transform: none; font-weight: 500; margin-top: 0.75rem;">
                 <input type="checkbox" id="cat-deep"> Include subcategories
               </label>
-              <button class="btn" onclick="searchCategory()">Search</button>
+              <button class="btn" onclick="searchCategory()" style="margin-top: auto;">Search</button>
             </div>
           </div>
           <p class="direction-hint">
-            Fetches all articles in a Wikipedia category and checks coverage. Use exact Wikipedia category names.
+            Fetches articles from each Wikipedia category and combines them into one set (duplicates removed). Use exact Wikipedia category names.
           </p>
         </div>
       </div>
@@ -138,6 +135,28 @@
               </select>
               <button class="btn" onclick="checkArticles()" style="margin-top: auto;">Check</button>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My List Panel -->
+    <div class="search-panel" id="panel-mylist">
+      <div class="glass-panel">
+        <div class="panel-header">
+          <span>My List</span>
+          <span class="iridescent-dot"></span>
+        </div>
+        <div class="panel-content">
+          <p class="direction-hint" style="margin-top:0;">
+            Build a curated bucket of articles across multiple searches. Use the
+            <strong>⭐</strong> button on any result row to add it here. Stats reflect only the
+            articles in your list — perfect for planning a campaign across multiple topics.
+          </p>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem;">
+            <button class="btn" onclick="renderMyList()">Refresh View</button>
+            <button class="btn btn-secondary" onclick="exportMyList()">Export My List</button>
+            <button class="btn btn-secondary" onclick="clearMyList()" style="margin-left:auto;">Clear List</button>
           </div>
         </div>
       </div>
@@ -271,6 +290,9 @@
     </div>
   </div>
 
+  <!-- Toast container -->
+  <div id="toast" class="toast"></div>
+
   <script>
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
@@ -279,14 +301,96 @@
         document.querySelectorAll('.search-panel').forEach(p => p.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+        if (tab.dataset.tab === 'mylist') {
+          renderMyList();
+        }
       });
     });
 
     // State
-    let currentResults = [];
+    let currentResults = [];   // Original results from last search
+    let viewResults = [];      // Currently displayed results (after removals)
     let currentMode = '';
+    let currentDirection = 'es_missing_en';
     let sortCol = null;
     let sortAsc = true;
+
+    // ---- My List (persistent bucket) ----
+    const MYLIST_KEY = 'wikibridge_mylist_v1';
+    function getMyList() {
+      try { return JSON.parse(localStorage.getItem(MYLIST_KEY) || '[]'); }
+      catch (e) { return []; }
+    }
+    function saveMyList(list) {
+      localStorage.setItem(MYLIST_KEY, JSON.stringify(list));
+      updateMyListBadge();
+    }
+    function updateMyListBadge() {
+      const count = getMyList().length;
+      const badge = document.getElementById('mylist-count');
+      if (badge) badge.textContent = count;
+    }
+    function isInMyList(title) {
+      return getMyList().some(r => r.title === title);
+    }
+    function addToMyList(result) {
+      const list = getMyList();
+      if (list.some(r => r.title === result.title)) {
+        showToast('Already in your list', 'info');
+        return;
+      }
+      list.push(result);
+      saveMyList(list);
+      showToast(`Added "${result.title}" to your list`, 'success');
+    }
+    function removeFromMyList(title) {
+      const list = getMyList().filter(r => r.title !== title);
+      saveMyList(list);
+      showToast('Removed from your list', 'info');
+      // If we're currently viewing My List, re-render
+      if (document.getElementById('panel-mylist').classList.contains('active')) {
+        renderMyList();
+      }
+    }
+    function clearMyList() {
+      if (!confirm('Clear all articles from your list?')) return;
+      saveMyList([]);
+      renderMyList();
+      showToast('List cleared', 'info');
+    }
+    function exportMyList() {
+      const list = getMyList();
+      if (list.length === 0) {
+        showToast('Your list is empty', 'info');
+        return;
+      }
+      const json = JSON.stringify(list);
+      window.location.href = `/api/export-csv?data_json=${encodeURIComponent(json)}`;
+    }
+
+    // ---- Toast notifications ----
+    let toastTimer = null;
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'toast toast-' + type + ' show';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2200);
+    }
+
+    // ---- Remove article from current view ----
+    function removeFromView(title) {
+      viewResults = viewResults.filter(r => r.title !== title);
+      // Re-render with recomputed stats
+      if (currentMode === 'articles') {
+        renderArticleResultsFromView();
+      } else {
+        renderGapResultsFromView();
+      }
+      showToast('Removed from view', 'info');
+    }
 
     function showLoading() {
       document.getElementById('loading').style.display = 'block';
@@ -384,7 +488,9 @@
         }
 
         currentResults = data.results;
+        viewResults = [...data.results];
         currentMode = 'topic';
+        currentDirection = direction;
         renderGapResults(data, direction);
       } catch (e) {
         hideLoading();
@@ -392,10 +498,14 @@
       }
     }
 
-    // Category Search
+    // Category Search (supports multiple categories, one per line)
     async function searchCategory() {
-      const category = document.getElementById('category-input').value.trim();
-      if (!category) return;
+      const raw = document.getElementById('category-input').value.trim();
+      if (!raw) return;
+
+      // Split on newlines, trim, drop empties
+      const categories = raw.split('\n').map(c => c.trim()).filter(Boolean);
+      if (categories.length === 0) return;
 
       const direction = document.getElementById('cat-direction').value;
       const limit = document.getElementById('cat-limit').value;
@@ -404,7 +514,7 @@
       showLoading();
       try {
         const resp = await fetch(
-          `/api/category-search?category=${encodeURIComponent(category)}&direction=${direction}&limit=${limit}&deep=${deep}`
+          `/api/category-search?categories=${encodeURIComponent(categories.join('|'))}&direction=${direction}&limit=${limit}&deep=${deep}`
         );
         const data = await resp.json();
 
@@ -415,7 +525,9 @@
         }
 
         currentResults = data.results;
+        viewResults = [...data.results];
         currentMode = 'category';
+        currentDirection = direction;
         renderGapResults(data, direction);
       } catch (e) {
         hideLoading();
@@ -452,12 +564,64 @@
         }
 
         currentResults = data.results;
+        viewResults = [...data.results];
         currentMode = 'articles';
         renderArticleResults(data);
       } catch (e) {
         hideLoading();
         showError('Request failed: ' + e.message);
       }
+    }
+
+    // Recompute aggregate stats from a results array (used after remove)
+    function computeStats(results) {
+      const gaps = results.filter(r => r.exists_in_source && !r.has_translation).length;
+      const translated = results.filter(r => r.has_translation).length;
+      const totalValid = gaps + translated;
+      const stubs = results.filter(r => r.is_stub).length;
+      const quality = results.filter(r => (r.quality_issues || []).length > 0).length;
+      const targetIssues = results.filter(r => (r.target_quality || []).length > 0 || r.target_is_stub).length;
+      return {
+        total: results.length,
+        gaps,
+        translated,
+        coverage_pct: totalValid > 0 ? Math.round((translated / totalValid) * 1000) / 10 : 0,
+        stubs,
+        quality,
+        target_issues: targetIssues,
+      };
+    }
+
+    // Re-render gap results from the current viewResults (after remove)
+    function renderGapResultsFromView() {
+      const stats = computeStats(viewResults);
+      const synthetic = {
+        results: viewResults,
+        total_searched: stats.total,
+        total_in_category: stats.total,
+        total_gaps: stats.gaps,
+        total_translated: stats.translated,
+        coverage_pct: stats.coverage_pct,
+        total_stubs: stats.stubs,
+        total_quality_issues: stats.quality,
+        total_target_issues: stats.target_issues,
+      };
+      renderGapResults(synthetic, currentDirection);
+    }
+
+    function renderArticleResultsFromView() {
+      const stats = computeStats(viewResults);
+      const missing = viewResults.filter(r => r.exists_in_source && !r.has_translation).length;
+      const synthetic = {
+        results: viewResults,
+        total_checked: stats.total,
+        total_missing: missing,
+        coverage_pct: stats.coverage_pct,
+        total_stubs: stats.stubs,
+        total_quality_issues: stats.quality,
+        total_target_issues: stats.target_issues,
+      };
+      renderArticleResults(synthetic);
     }
 
     // Shared renderer for topic + category
@@ -514,12 +678,13 @@
           <th onclick="sortTable(5)">${targetLang} Quality</th>
           <th onclick="sortNumeric(6)">Priority</th>
           <th>Links</th>
+          <th>Actions</th>
         </tr>
       `;
 
       const tbody = document.getElementById('table-body');
       const results = data.results || [];
-      tbody.innerHTML = results.map(r => {
+      tbody.innerHTML = results.map((r, idx) => {
         const hasTranslation = r.has_translation;
         const statusClass = hasTranslation ? 'exists' : 'missing';
         const statusText = hasTranslation ? 'Yes' : 'Missing';
@@ -531,6 +696,7 @@
           : '';
         const priority = r.priority || 0;
         const priorityClass = priority >= 80 ? 'priority-high' : priority >= 40 ? 'priority-med' : 'priority-low';
+        const inList = isInMyList(title);
 
         return `
           <tr>
@@ -545,13 +711,40 @@
               ${url ? `<a href="${escapeHtml(url)}" target="_blank">${sourceLang}</a>` : ''}
               ${targetUrl ? ` · <a href="${escapeHtml(targetUrl)}" target="_blank">${targetLang}</a>` : ''}
             </td>
+            <td class="row-actions">
+              <button class="row-btn star ${inList ? 'active' : ''}" title="${inList ? 'In your list' : 'Add to My List'}" data-idx="${idx}" data-source="view" onclick="handleStarClick(this)">${inList ? '★' : '☆'}</button>
+              <button class="row-btn remove" title="Remove from view" data-idx="${idx}" onclick="handleRemoveClick(this)">✕</button>
+            </td>
           </tr>
         `;
       }).join('');
 
       if (results.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted);">No results found. Try a different search term or direction.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text-muted);">No results found. Try a different search term or direction.</td></tr>';
       }
+    }
+
+    // Row action handlers
+    function handleStarClick(btn) {
+      const idx = parseInt(btn.dataset.idx, 10);
+      const source = btn.dataset.source;
+      const r = source === 'mylist' ? getMyList()[idx] : viewResults[idx];
+      if (!r) return;
+      addToMyList(r);
+      if (currentMode === 'articles') {
+        renderArticleResultsFromView();
+      } else if (currentMode === 'mylist') {
+        renderMyList();
+      } else {
+        renderGapResultsFromView();
+      }
+    }
+
+    function handleRemoveClick(btn) {
+      const idx = parseInt(btn.dataset.idx, 10);
+      const r = viewResults[idx];
+      if (!r) return;
+      removeFromView(r.title);
     }
 
     function renderArticleResults(data) {
@@ -606,11 +799,13 @@
           <th onclick="sortTable(5)">${target} Quality</th>
           <th onclick="sortNumeric(6)">Priority</th>
           <th>Links</th>
+          <th>Actions</th>
         </tr>
       `;
 
       const tbody = document.getElementById('table-body');
-      tbody.innerHTML = data.results.map(r => {
+      tbody.innerHTML = data.results.map((r, idx) => {
+        const inList = isInMyList(r.title);
         const statusClass = r.has_translation ? 'exists' : 'missing';
         const statusText = r.has_translation ? 'Yes' : 'Missing';
         const targetUrl = r.has_translation && r.target_title
@@ -630,6 +825,107 @@
             <td>
               <a href="${escapeHtml(r.source_url)}" target="_blank">${source}</a>
               ${targetUrl ? ` · <a href="${escapeHtml(targetUrl)}" target="_blank">${target}</a>` : ''}
+            </td>
+            <td class="row-actions">
+              <button class="row-btn star ${inList ? 'active' : ''}" title="${inList ? 'In your list' : 'Add to My List'}" data-idx="${idx}" data-source="view" onclick="handleStarClick(this)">${inList ? '★' : '☆'}</button>
+              <button class="row-btn remove" title="Remove from view" data-idx="${idx}" onclick="handleRemoveClick(this)">✕</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Render My List in the results table area
+    function renderMyList() {
+      const list = getMyList();
+      currentMode = 'mylist';
+      viewResults = [...list];
+      hideLoading();
+      clearError();
+
+      const stats = computeStats(list);
+
+      document.getElementById('stats').innerHTML = `
+        <div class="stat">
+          <div class="stat-value">${stats.total}</div>
+          <div class="stat-label">In Your List</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value gap">${stats.gaps}</div>
+          <div class="stat-label">Missing</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value found">${stats.coverage_pct}%</div>
+          <div class="stat-label">Coverage</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value stub">${stats.stubs}</div>
+          <div class="stat-label">Stubs</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value warning-val">${stats.quality}</div>
+          <div class="stat-label">Source Quality Issues</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value warning-val">${stats.target_issues}</div>
+          <div class="stat-label">Target Quality Issues</div>
+        </div>
+      `;
+
+      document.getElementById('export-btn').style.display = 'none';
+      document.getElementById('results-area').style.display = 'block';
+
+      document.getElementById('table-head').innerHTML = `
+        <tr>
+          <th>Title</th>
+          <th>Views/mo</th>
+          <th>Translated</th>
+          <th>Depth</th>
+          <th>Source Quality</th>
+          <th>Target Quality</th>
+          <th>Priority</th>
+          <th>Links</th>
+          <th>Actions</th>
+        </tr>
+      `;
+
+      const tbody = document.getElementById('table-body');
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text-muted);">Your list is empty. Add articles from any search by clicking the ☆ button.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map((r, idx) => {
+        const hasTranslation = r.has_translation;
+        const statusClass = hasTranslation ? 'exists' : 'missing';
+        const statusText = hasTranslation ? 'Yes' : 'Missing';
+        const title = r.title || '';
+        const targetTitle = r.target_title || '';
+        const url = r.source_url || '';
+        // Best-effort target URL — assume opposite of source language
+        const sourceLangFromUrl = url.includes('://es.wikipedia') ? 'es' : 'en';
+        const targetLangFromUrl = sourceLangFromUrl === 'es' ? 'en' : 'es';
+        const targetUrl = hasTranslation && targetTitle
+          ? `https://${targetLangFromUrl}.wikipedia.org/wiki/${encodeURIComponent(targetTitle.replace(/ /g, '_'))}`
+          : '';
+        const priority = r.priority || 0;
+        const priorityClass = priority >= 80 ? 'priority-high' : priority >= 40 ? 'priority-med' : 'priority-low';
+
+        return `
+          <tr>
+            <td><strong>${escapeHtml(title)}</strong>${r.source_categories && r.source_categories.length ? '<br><small style="color:var(--text-muted);">' + escapeHtml(r.source_categories.join(' · ')) + '</small>' : ''}</td>
+            <td>${formatViews(r.monthly_views)}</td>
+            <td><span class="badge ${statusClass}">${statusText}</span>${hasTranslation ? '<br><small style="color:var(--text-muted);">' + escapeHtml(targetTitle) + '</small>' : ''}</td>
+            <td style="min-width:120px;">${hasTranslation ? depthBar(r) : '<span style="color:var(--text-muted);">—</span>'}</td>
+            <td>${qualityBadges(r)}</td>
+            <td>${hasTranslation ? qualityBadges(r, 'target') : '<span style="color:var(--text-muted);">N/A</span>'}</td>
+            <td><span class="priority-score ${priorityClass}">${priority}</span></td>
+            <td>
+              ${url ? `<a href="${escapeHtml(url)}" target="_blank">${sourceLangFromUrl.toUpperCase()}</a>` : ''}
+              ${targetUrl ? ` · <a href="${escapeHtml(targetUrl)}" target="_blank">${targetLangFromUrl.toUpperCase()}</a>` : ''}
+            </td>
+            <td class="row-actions">
+              <button class="row-btn remove" title="Remove from list" onclick="removeFromMyList('${escapeHtml(title).replace(/'/g, '&#39;')}')">✕</button>
             </td>
           </tr>
         `;
@@ -677,6 +973,9 @@
       const json = JSON.stringify(currentResults);
       window.location.href = `/api/export-csv?data_json=${encodeURIComponent(json)}`;
     }
+
+    // Initialize My List badge on load
+    updateMyListBadge();
 
     // Enter key triggers search
     document.getElementById('topic-input').addEventListener('keydown', e => {
