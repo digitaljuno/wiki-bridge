@@ -1,15 +1,23 @@
 """WikiBridge — Wikipedia Knowledge Gap Tool."""
 
+import asyncio
 import csv
 import io
+import json
+import sys
+from pathlib import Path
 
 from fastapi import FastAPI, Query, Request
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+import httpx
 
 import wikidata_api
 import wikipedia_api
+
+sys.path.insert(0, str(Path(__file__).parent))
+import wiki_wc_nav as wn
 
 app = FastAPI(title="WikiBridge", description="Wikipedia EN↔ES Knowledge Gap Finder")
 
@@ -290,6 +298,84 @@ async def export_csv(
         media_type="text/csv",
         headers={"Content-Disposition": 'attachment; filename="wikibridge-export.csv"'},
     )
+
+
+@app.get("/api/article-paths")
+async def article_paths(
+    title: str = Query(..., min_length=1),
+    lang: str = Query("en"),
+    month: str = Query(""),
+    cache_dir: str = Query("~/.cache/wiki-wc-nav"),
+    limit: int = Query(25, ge=5, le=50),
+):
+    """Stream navigation paths for a single article as Server-Sent Events."""
+
+    async def generate():
+        def evt(type_: str, **kwargs) -> str:
+            return f"data: {json.dumps({'type': type_, **kwargs})}\n\n"
+
+        try:
+            cache_path = Path(cache_dir).expanduser()
+            title_underscored = title.strip().replace(" ", "_")
+            lang_code = lang.strip().lower()
+
+            yield evt("progress", msg=f"Looking up paths for '{title}' on {lang_code.upper()} Wikipedia...")
+
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                yield evt("progress", msg="Checking latest available clickstream month...")
+                try:
+                    year, month_num = await wn.resolve_clickstream_month(
+                        client, forced=month or None
+                    )
+                    yield evt("progress", msg=f"Using: {year:04d}-{month_num:02d}")
+                except Exception as e:
+                    yield evt("error", msg=str(e))
+                    return
+
+                try:
+                    path = await wn.download_clickstream(client, lang_code, year, month_num, cache_path)
+                except Exception as e:
+                    yield evt("error", msg=f"Download failed: {e}")
+                    return
+
+            yield evt("progress", msg=f"Scanning clickstream for '{title}' (may take 1–3 min for EN)...")
+            loop = asyncio.get_running_loop()
+            result = await loop.run_in_executor(
+                None, wn.lookup_article_nav, path, title_underscored, limit
+            )
+
+            if not result["incoming"] and not result["outgoing"] and not result["external"]:
+                yield evt("error", msg=f"No navigation data found for '{title}'. Check the spelling or try a different article.")
+                return
+
+            yield evt("done", **result, lang=lang_code, month=f"{year:04d}-{month_num:02d}")
+
+        except Exception as e:
+            yield evt("error", msg=f"Lookup failed: {e}")
+
+    return StreamingResponse(generate(), media_type="text/event-stream")
+
+
+@app.get("/api/suggest")
+async def suggest(q: str = Query(""), lang: str = Query("en")):
+    """Wikipedia title autocomplete via MediaWiki search API."""
+    if not q.strip():
+        return {"results": []}
+    api = wn.API_URLS.get(lang, wn.API_URLS["en"])
+    params = {
+        "action": "opensearch",
+        "search": q,
+        "limit": "8",
+        "namespace": "0",
+        "format": "json",
+    }
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            resp = await client.get(api, params=params, headers=wn.HEADERS)
+            data = resp.json()
+            return {"results": data[1] if len(data) > 1 else []}
+    except Exception:
+        return {"results": []}
 
 
 if __name__ == "__main__":
