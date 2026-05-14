@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WikiBridge — Knowledge Gap Finder</title>
+  <title>WikiBridge — Wikipedia Research Tools for WikiLatinos</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -14,8 +14,8 @@
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
           <div>
             <h1><span>Wiki</span>Bridge</h1>
-            <p>Find Wikipedia articles missing between English and Spanish</p>
-            <p class="credit">Built by <a href="https://en.wikipedia.org/wiki/Wikipedia:WikiProject_Latino_and_Hispanic_heritage" target="_blank">WikiLatinos</a></p>
+            <p>Find EN↔ES article gaps · Explore reader navigation paths</p>
+            <p class="credit">Built by <a href="https://en.wikipedia.org/wiki/Wikipedia:WikiProject_Latino_and_Hispanic_heritage" target="_blank">WikiLatinos</a> · includes WikiNav-style clickstream data</p>
           </div>
           <button class="btn btn-secondary" onclick="document.getElementById('help-modal').style.display='flex'" style="align-self:start;">How to Use</button>
         </div>
@@ -196,8 +196,8 @@
             </button>
           </div>
           <p class="direction-hint">
-            Shows where Wikipedia readers came from before landing on this article, and where they went next.
-            First run downloads the Wikimedia Clickstream file (~500 MB for EN, ~50 MB for ES) — cached after that.
+            See where readers came from and where they went next — the same data WikiNav used, now built into WikiBridge.
+            Powered by Wikimedia Clickstream. First run downloads the data file (~500 MB EN, ~50 MB ES) and caches it.
           </p>
         </div>
       </div>
